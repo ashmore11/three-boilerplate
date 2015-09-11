@@ -14,6 +14,8 @@ class Renderer
     @renderer.setSize win.width, win.height
     @renderer.setClearColor 0xffffff
 
+    @renderer.shadowMapEnabled = on
+
     RAF.on 'update', @update
 
   appendDomElement: ( el ) ->

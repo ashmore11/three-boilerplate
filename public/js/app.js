@@ -66,9 +66,18 @@
 
 	  function APP() {
 	    this.update = __bind(this.update, this);
+	    var geometry, material, mesh;
 	    Renderer.appendDomElement(this.el);
 	    this.scene.add(new THREE.GridHelper(50, 10));
 	    this.scene.add(new THREE.AxisHelper(10));
+	    this.ambientLight = new THREE.AmbientLight(0xffffff);
+	    this.scene.add(this.ambientLight);
+	    geometry = new THREE.SphereGeometry(10, 16, 16);
+	    material = new THREE.MeshLambertMaterial(0x000000, {
+	      wireframe: true
+	    });
+	    mesh = new THREE.Mesh(geometry, material);
+	    this.scene.add(mesh);
 	    RAF.on('update', this.update);
 	  }
 
@@ -286,6 +295,7 @@
 	    });
 	    this.renderer.setSize(win.width, win.height);
 	    this.renderer.setClearColor(0xffffff);
+	    this.renderer.shadowMapEnabled = true;
 	    RAF.on('update', this.update);
 	  }
 
