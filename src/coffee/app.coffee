@@ -26,11 +26,14 @@ class APP
     RAF.on 'tick',   @update
     win.on 'resize', @resize
 
-  update: ( left, bottom, width, height ) =>
+  update: =>
 
-    Renderer.render Scene, Camera
+    Renderer.setViewport 0, 0, win.width, win.height
+    Renderer.setScissor  0, 0, win.width, win.height
 
     Renderer.enableScissorTest true
+
+    Renderer.render Scene, Camera
 
     Camera.updateProjectionMatrix()
 

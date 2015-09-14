@@ -80,9 +80,11 @@
 	    win.on('resize', this.resize);
 	  }
 
-	  APP.prototype.update = function(left, bottom, width, height) {
-	    Renderer.render(Scene, Camera);
+	  APP.prototype.update = function() {
+	    Renderer.setViewport(0, 0, win.width, win.height);
+	    Renderer.setScissor(0, 0, win.width, win.height);
 	    Renderer.enableScissorTest(true);
+	    Renderer.render(Scene, Camera);
 	    Camera.updateProjectionMatrix();
 	    return Controls.update();
 	  };
