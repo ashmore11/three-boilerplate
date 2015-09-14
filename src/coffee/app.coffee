@@ -19,7 +19,7 @@ class APP
     light = new THREE.SpotLight 0xffffff
     light.position.set 0, 20, 0
 
-    Scene.add light
+    # Scene.add light
 
     @view = new View
 

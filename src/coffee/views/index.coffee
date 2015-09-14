@@ -6,14 +6,19 @@ module.exports = class Index
 
   constructor: ->
 
-    geometry = new THREE.SphereGeometry 5, 32, 32
-    material = new THREE.MeshLambertMaterial 0xffffff
-    mesh     = new THREE.Mesh geometry, material
+    geometry = new THREE.SphereGeometry 10, 32, 32
+    material = new THREE.MeshLambertMaterial color: 0xffffff, wireframe: true
+    @sphere  = new THREE.Mesh geometry, material
 
-    Scene.add mesh
+    Scene.add @sphere
 
     RAF.on 'tick', @update
 
-  update: =>
+  update: ( time ) =>
 
-    console.log 'update'
+    @sphere.geometry.verticesNeedUpdate = true
+
+    for face in @sphere.geometry.faces
+
+      face.a = Math.floor( 100 * Math.sin( time / 10000 ) + 100 )
+      face.b = Math.floor( 100 * Math.sin( time / 10000 ) + 100 )

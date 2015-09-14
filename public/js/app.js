@@ -74,7 +74,6 @@
 	    }
 	    light = new THREE.SpotLight(0xffffff);
 	    light.position.set(0, 20, 0);
-	    Scene.add(light);
 	    this.view = new View;
 	    RAF.on('tick', this.update);
 	    win.on('resize', this.resize);
@@ -295,9 +294,9 @@
 	    return this.id_animloop = null;
 	  };
 
-	  RAF.prototype.animloop = function() {
+	  RAF.prototype.animloop = function(time) {
 	    this.id_animloop = window.requestAnimationFrame(this.animloop);
-	    return this.emit('tick');
+	    return this.emit('tick', time);
 	  };
 
 	  return RAF;
@@ -397,16 +396,28 @@
 	module.exports = Index = (function() {
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    var geometry, material, mesh;
-	    geometry = new THREE.SphereGeometry(5, 32, 32);
-	    material = new THREE.MeshLambertMaterial(0xffffff);
-	    mesh = new THREE.Mesh(geometry, material);
-	    Scene.add(mesh);
+	    var geometry, material;
+	    geometry = new THREE.SphereGeometry(10, 32, 32);
+	    material = new THREE.MeshLambertMaterial({
+	      color: 0xffffff,
+	      wireframe: true
+	    });
+	    this.sphere = new THREE.Mesh(geometry, material);
+	    Scene.add(this.sphere);
 	    RAF.on('tick', this.update);
 	  }
 
-	  Index.prototype.update = function() {
-	    return console.log('update');
+	  Index.prototype.update = function(time) {
+	    var face, _i, _len, _ref, _results;
+	    this.sphere.geometry.verticesNeedUpdate = true;
+	    _ref = this.sphere.geometry.faces;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      face = _ref[_i];
+	      face.a = Math.floor(100 * Math.sin(time / 10000) + 100);
+	      _results.push(face.b = Math.floor(100 * Math.sin(time / 10000) + 100));
+	    }
+	    return _results;
 	  };
 
 	  return Index;

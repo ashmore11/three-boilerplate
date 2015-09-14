@@ -45,10 +45,10 @@ class RAF
 		
 		@id_animloop = null
 
-	animloop: ( ) =>
+	animloop: ( time ) =>
  
 		@id_animloop = window.requestAnimationFrame @animloop
 
-		@emit 'tick'
+		@emit 'tick', time
 
 module.exports = new RAF
