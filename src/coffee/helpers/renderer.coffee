@@ -16,11 +16,9 @@ class Renderer
 
     @renderer.shadowMapEnabled = on
 
+    $('main').append @renderer.domElement
+
     RAF.on 'update', @update
-
-  appendDomElement: ( el ) ->
-
-    el.append @renderer.domElement
 
   update: =>
 

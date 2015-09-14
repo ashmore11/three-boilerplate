@@ -56,8 +56,6 @@
 	Controls = __webpack_require__(7);
 
 	APP = (function() {
-	  APP.prototype.el = $('#scene');
-
 	  APP.prototype.scene = Scene;
 
 	  APP.prototype.renderer = Renderer.renderer;
@@ -67,7 +65,6 @@
 	  function APP() {
 	    this.update = __bind(this.update, this);
 	    var geometry, material, mesh;
-	    Renderer.appendDomElement(this.el);
 	    this.scene.add(new THREE.GridHelper(50, 10));
 	    this.scene.add(new THREE.AxisHelper(10));
 	    this.ambientLight = new THREE.AmbientLight(0x000000);
@@ -286,12 +283,9 @@
 	    this.renderer.setSize(win.width, win.height);
 	    this.renderer.setClearColor(0xffffff);
 	    this.renderer.shadowMapEnabled = true;
+	    $('main').append(this.renderer.domElement);
 	    RAF.on('update', this.update);
 	  }
-
-	  Renderer.prototype.appendDomElement = function(el) {
-	    return el.append(this.renderer.domElement);
-	  };
 
 	  Renderer.prototype.update = function() {
 	    return this.renderer.render(Scene, Camera.camera);

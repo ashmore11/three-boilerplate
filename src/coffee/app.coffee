@@ -5,14 +5,11 @@ Controls = require 'helpers/controls'
 
 class APP
 
-  el       : $ '#scene'
   scene    : Scene
   renderer : Renderer.renderer
   controls : Controls.controls
 
   constructor: ->
-
-    Renderer.appendDomElement @el
 
     @scene.add new THREE.GridHelper 50, 10
     @scene.add new THREE.AxisHelper 10
