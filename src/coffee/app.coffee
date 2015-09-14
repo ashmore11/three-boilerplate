@@ -1,36 +1,35 @@
-RAF      = require 'utils/raf'
-Scene    = require 'helpers/scene'
 Renderer = require 'helpers/renderer'
 Controls = require 'helpers/controls'
+Camera   = require 'helpers/camera'
+Scene    = require 'helpers/scene'
+RAF      = require 'utils/raf'
 
 class APP
 
-  scene    : Scene
-  renderer : Renderer.renderer
-  controls : Controls.controls
-
   constructor: ->
 
-    @scene.add new THREE.GridHelper 50, 10
-    @scene.add new THREE.AxisHelper 10
+    Scene.add new THREE.GridHelper 50, 10
+    Scene.add new THREE.AxisHelper 60
 
-    @ambientLight = new THREE.AmbientLight( 0x000000 )
-    @spotLight    = new THREE.SpotLight( 0xcfcfcf )
-    @spotLight.position.set 0, 1000, 0
-    
-    @scene.add @spotLight
-    # @scene.add @ambientLight
+    light = new THREE.SpotLight 0xffffff
+    light.position.set 0, 20, 0
 
-    geometry = new THREE.SphereGeometry( 10, 32, 32 )
-    material = new THREE.MeshPhongMaterial( 0x000000, wireframe: true )
-    mesh     = new THREE.Mesh( geometry, material )
+    Scene.add light
 
-    mesh.position.set(0,10,0)
+    geometry = new THREE.SphereGeometry 5, 32, 32
+    material = new THREE.MeshLambertMaterial 0xffffff
+    mesh     = new THREE.Mesh geometry, material
 
-    @scene.add mesh
+    Scene.add mesh
 
     RAF.on 'update', @update
 
   update: =>
+
+    Renderer.render( Scene, Camera )
+
+    Camera.updateProjectionMatrix()
+
+    Controls.update()
 
 module.exports = new APP

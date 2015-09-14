@@ -44,44 +44,40 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var APP, Controls, RAF, Renderer, Scene,
+	var APP, Camera, Controls, RAF, Renderer, Scene,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-	RAF = __webpack_require__(1);
+	Renderer = __webpack_require__(1);
 
-	Scene = __webpack_require__(3);
+	Controls = __webpack_require__(4);
 
-	Renderer = __webpack_require__(4);
+	Camera = __webpack_require__(5);
 
-	Controls = __webpack_require__(7);
+	Scene = __webpack_require__(6);
+
+	RAF = __webpack_require__(7);
 
 	APP = (function() {
-	  APP.prototype.scene = Scene;
-
-	  APP.prototype.renderer = Renderer.renderer;
-
-	  APP.prototype.controls = Controls.controls;
-
 	  function APP() {
 	    this.update = __bind(this.update, this);
-	    var geometry, material, mesh;
-	    this.scene.add(new THREE.GridHelper(50, 10));
-	    this.scene.add(new THREE.AxisHelper(10));
-	    this.ambientLight = new THREE.AmbientLight(0x000000);
-	    this.spotLight = new THREE.SpotLight(0xcfcfcf);
-	    this.spotLight.position.set(0, 1000, 0);
-	    this.scene.add(this.spotLight);
-	    geometry = new THREE.SphereGeometry(10, 32, 32);
-	    material = new THREE.MeshPhongMaterial(0x000000, {
-	      wireframe: true
-	    });
+	    var geometry, light, material, mesh;
+	    Scene.add(new THREE.GridHelper(50, 10));
+	    Scene.add(new THREE.AxisHelper(60));
+	    light = new THREE.SpotLight(0xffffff);
+	    light.position.set(0, 20, 0);
+	    Scene.add(light);
+	    geometry = new THREE.SphereGeometry(5, 32, 32);
+	    material = new THREE.MeshLambertMaterial(0xffffff);
 	    mesh = new THREE.Mesh(geometry, material);
-	    mesh.position.set(0, 10, 0);
-	    this.scene.add(mesh);
+	    Scene.add(mesh);
 	    RAF.on('update', this.update);
 	  }
 
-	  APP.prototype.update = function() {};
+	  APP.prototype.update = function() {
+	    Renderer.render(Scene, Camera);
+	    Camera.updateProjectionMatrix();
+	    return Controls.update();
+	  };
 
 	  return APP;
 
@@ -94,72 +90,63 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var RAF, happens,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	var renderer, win;
 
-	happens = __webpack_require__(2);
+	win = __webpack_require__(2);
 
-	(function() {
-	  var lastTime, vendors, x;
-	  lastTime = 0;
-	  vendors = ["ms", "moz", "o"];
-	  x = 0;
-	  while (x < vendors.length && !window.requestAnimationFrame) {
-	    window.requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
-	    window.cancelAnimationFrame = window[vendors[x] + "CancelAnimationFrame"] || window[vendors[x] + "CancelRequestAnimationFrame"];
-	    ++x;
-	  }
-	  if (!window.requestAnimationFrame) {
-	    window.requestAnimationFrame = function(callback, element) {
-	      var currTime, id, timeToCall;
-	      currTime = new Date().getTime();
-	      timeToCall = Math.max(0, 16 - (currTime - lastTime));
-	      id = window.setTimeout(function() {
-	        return callback(currTime + timeToCall);
-	      }, timeToCall);
-	      lastTime = currTime + timeToCall;
-	      return id;
-	    };
-	  }
-	  if (!window.cancelAnimationFrame) {
-	    return window.cancelAnimationFrame = function(id) {
-	      return clearTimeout(id);
-	    };
-	  }
-	})();
+	renderer = new THREE.WebGLRenderer({
+	  antialias: true
+	});
 
-	RAF = (function() {
-	  RAF.prototype.id_animloop = null;
+	renderer.setSize(win.width, win.height);
 
-	  function RAF() {
-	    this.animloop = __bind(this.animloop, this);
-	    happens(this);
-	    this.start();
-	  }
+	renderer.setClearColor("#ffffff");
 
-	  RAF.prototype.start = function() {
-	    return this.id_animloop = window.requestAnimationFrame(this.animloop);
-	  };
+	renderer.shadowMapEnabled = true;
 
-	  RAF.prototype.stop = function() {
-	    window.cancelAnimationFrame(this.id_animloop);
-	    return this.id_animloop = null;
-	  };
+	$('main').append(renderer.domElement);
 
-	  RAF.prototype.animloop = function() {
-	    this.id_animloop = window.requestAnimationFrame(this.animloop);
-	    return this.emit('update');
-	  };
-
-	  return RAF;
-
-	})();
-
-	module.exports = new RAF;
+	module.exports = renderer;
 
 
 /***/ },
 /* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Window, happens,
+	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+	happens = __webpack_require__(3);
+
+	Window = (function() {
+	  Window.prototype.window = $(window);
+
+	  Window.prototype.width = 0;
+
+	  Window.prototype.height = 0;
+
+	  function Window() {
+	    this.resize = __bind(this.resize, this);
+	    happens(this);
+	    this.window.on('resize', this.resize);
+	    this.resize();
+	  }
+
+	  Window.prototype.resize = function() {
+	    this.width = this.window.width();
+	    this.height = this.window.height();
+	    return this.emit('resize');
+	  };
+
+	  return Window;
+
+	})();
+
+	module.exports = new Window;
+
+
+/***/ },
+/* 3 */
 /***/ function(module, exports) {
 
 	/**
@@ -251,158 +238,122 @@
 	}
 
 /***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	module.exports = new THREE.Scene;
-
-
-/***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Camera, RAF, Renderer, Scene, win,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	var Camera, controls;
 
-	win = __webpack_require__(5);
+	Camera = __webpack_require__(5);
 
-	RAF = __webpack_require__(1);
+	controls = new THREE.TrackballControls(Camera, $('canvas')[0]);
 
-	Scene = __webpack_require__(3);
+	controls.rotateSpeed = 1.0;
 
-	Camera = __webpack_require__(6);
+	controls.zoomSpeed = 1.2;
 
-	Renderer = (function() {
-	  Renderer.prototype.renderer = null;
+	controls.panSpeed = 0.8;
 
-	  function Renderer(el) {
-	    this.update = __bind(this.update, this);
-	    this.renderer = new THREE.WebGLRenderer({
-	      antialias: true
-	    });
-	    this.renderer.setSize(win.width, win.height);
-	    this.renderer.setClearColor(0xffffff);
-	    this.renderer.shadowMapEnabled = true;
-	    $('main').append(this.renderer.domElement);
-	    RAF.on('update', this.update);
-	  }
+	controls.noZoom = false;
 
-	  Renderer.prototype.update = function() {
-	    return this.renderer.render(Scene, Camera.camera);
-	  };
+	controls.noPan = false;
 
-	  return Renderer;
+	controls.staticMoving = true;
 
-	})();
+	controls.dynamicDampingFactor = 0.5;
 
-	module.exports = new Renderer;
+	module.exports = controls;
 
 
 /***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Window, happens,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	var camera, win;
 
-	happens = __webpack_require__(2);
+	win = __webpack_require__(2);
 
-	Window = (function() {
-	  Window.prototype.window = $(window);
+	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 100000);
 
-	  Window.prototype.width = 0;
+	camera.position.set(60, 45, 60);
 
-	  Window.prototype.height = 0;
+	camera.lookAt(new THREE.Vector3);
 
-	  function Window() {
-	    this.resize = __bind(this.resize, this);
-	    happens(this);
-	    this.window.on('resize', this.resize);
-	    this.resize();
-	  }
-
-	  Window.prototype.resize = function() {
-	    this.width = this.window.width();
-	    this.height = this.window.height();
-	    return this.emit('resize');
-	  };
-
-	  return Window;
-
-	})();
-
-	module.exports = new Window;
+	module.exports = camera;
 
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Camera, RAF, win,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-	RAF = __webpack_require__(1);
-
-	win = __webpack_require__(5);
-
-	Camera = (function() {
-	  Camera.prototype.camera = null;
-
-	  function Camera() {
-	    this.update = __bind(this.update, this);
-	    this.camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 100000);
-	    this.camera.position.set(60, 45, 60);
-	    this.camera.lookAt(new THREE.Vector3);
-	    RAF.on('update', this.update);
-	  }
-
-	  Camera.prototype.update = function() {
-	    return this.camera.updateProjectionMatrix();
-	  };
-
-	  return Camera;
-
-	})();
-
-	module.exports = new Camera;
+	module.exports = new THREE.Scene;
 
 
 /***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Camera, Controls, RAF,
+	var RAF, happens,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-	RAF = __webpack_require__(1);
+	happens = __webpack_require__(3);
 
-	Camera = __webpack_require__(6);
+	(function() {
+	  var lastTime, vendors, x;
+	  lastTime = 0;
+	  vendors = ["ms", "moz", "o"];
+	  x = 0;
+	  while (x < vendors.length && !window.requestAnimationFrame) {
+	    window.requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
+	    window.cancelAnimationFrame = window[vendors[x] + "CancelAnimationFrame"] || window[vendors[x] + "CancelRequestAnimationFrame"];
+	    ++x;
+	  }
+	  if (!window.requestAnimationFrame) {
+	    window.requestAnimationFrame = function(callback, element) {
+	      var currTime, id, timeToCall;
+	      currTime = new Date().getTime();
+	      timeToCall = Math.max(0, 16 - (currTime - lastTime));
+	      id = window.setTimeout(function() {
+	        return callback(currTime + timeToCall);
+	      }, timeToCall);
+	      lastTime = currTime + timeToCall;
+	      return id;
+	    };
+	  }
+	  if (!window.cancelAnimationFrame) {
+	    return window.cancelAnimationFrame = function(id) {
+	      return clearTimeout(id);
+	    };
+	  }
+	})();
 
-	Controls = (function() {
-	  Controls.prototype.controls = null;
+	RAF = (function() {
+	  RAF.prototype.id_animloop = null;
 
-	  function Controls() {
-	    this.update = __bind(this.update, this);
-	    this.controls = new THREE.TrackballControls(Camera.camera, $('canvas')[0]);
-	    this.controls.rotateSpeed = 1.0;
-	    this.controls.zoomSpeed = 1.2;
-	    this.controls.panSpeed = 0.8;
-	    this.controls.noZoom = false;
-	    this.controls.noPan = false;
-	    this.controls.staticMoving = true;
-	    this.controls.dynamicDampingFactor = 0.5;
-	    RAF.on('update', this.update);
+	  function RAF() {
+	    this.animloop = __bind(this.animloop, this);
+	    happens(this);
+	    this.start();
 	  }
 
-	  Controls.prototype.update = function() {
-	    return this.controls.update();
+	  RAF.prototype.start = function() {
+	    return this.id_animloop = window.requestAnimationFrame(this.animloop);
 	  };
 
-	  return Controls;
+	  RAF.prototype.stop = function() {
+	    window.cancelAnimationFrame(this.id_animloop);
+	    return this.id_animloop = null;
+	  };
+
+	  RAF.prototype.animloop = function() {
+	    this.id_animloop = window.requestAnimationFrame(this.animloop);
+	    return this.emit('update');
+	  };
+
+	  return RAF;
 
 	})();
 
-	module.exports = new Controls;
+	module.exports = new RAF;
 
 
 /***/ }
