@@ -44,25 +44,25 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var APP, Camera, Controls, RAF, Renderer, Scene,
+	var APP, Camera, Controls, RAF, Renderer, Scene, Settings,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-	Renderer = __webpack_require__(1);
+	Settings = __webpack_require__(1);
 
-	Controls = __webpack_require__(4);
+	RAF = __webpack_require__(2);
 
-	Camera = __webpack_require__(5);
+	Renderer = __webpack_require__(4);
 
-	Scene = __webpack_require__(6);
+	Controls = __webpack_require__(6);
 
-	RAF = __webpack_require__(7);
+	Camera = __webpack_require__(7);
+
+	Scene = __webpack_require__(8);
 
 	APP = (function() {
 	  function APP() {
 	    this.update = __bind(this.update, this);
 	    var geometry, light, material, mesh;
-	    Scene.add(new THREE.GridHelper(50, 10));
-	    Scene.add(new THREE.AxisHelper(60));
 	    light = new THREE.SpotLight(0xffffff);
 	    light.position.set(0, 20, 0);
 	    Scene.add(light);
@@ -88,61 +88,79 @@
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var renderer, win;
-
-	win = __webpack_require__(2);
-
-	renderer = new THREE.WebGLRenderer({
-	  antialias: true
-	});
-
-	renderer.setSize(win.width, win.height);
-
-	renderer.setClearColor("#ffffff");
-
-	renderer.shadowMapEnabled = true;
-
-	$('main').append(renderer.domElement);
-
-	module.exports = renderer;
+	module.exports = {
+	  debug: true
+	};
 
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Window, happens,
+	var RAF, happens,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 	happens = __webpack_require__(3);
 
-	Window = (function() {
-	  Window.prototype.window = $(window);
+	(function() {
+	  var lastTime, vendors, x;
+	  lastTime = 0;
+	  vendors = ["ms", "moz", "o"];
+	  x = 0;
+	  while (x < vendors.length && !window.requestAnimationFrame) {
+	    window.requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
+	    window.cancelAnimationFrame = window[vendors[x] + "CancelAnimationFrame"] || window[vendors[x] + "CancelRequestAnimationFrame"];
+	    ++x;
+	  }
+	  if (!window.requestAnimationFrame) {
+	    window.requestAnimationFrame = function(callback, element) {
+	      var currTime, id, timeToCall;
+	      currTime = new Date().getTime();
+	      timeToCall = Math.max(0, 16 - (currTime - lastTime));
+	      id = window.setTimeout(function() {
+	        return callback(currTime + timeToCall);
+	      }, timeToCall);
+	      lastTime = currTime + timeToCall;
+	      return id;
+	    };
+	  }
+	  if (!window.cancelAnimationFrame) {
+	    return window.cancelAnimationFrame = function(id) {
+	      return clearTimeout(id);
+	    };
+	  }
+	})();
 
-	  Window.prototype.width = 0;
+	RAF = (function() {
+	  RAF.prototype.id_animloop = null;
 
-	  Window.prototype.height = 0;
-
-	  function Window() {
-	    this.resize = __bind(this.resize, this);
+	  function RAF() {
+	    this.animloop = __bind(this.animloop, this);
 	    happens(this);
-	    this.window.on('resize', this.resize);
-	    this.resize();
+	    this.start();
 	  }
 
-	  Window.prototype.resize = function() {
-	    this.width = this.window.width();
-	    this.height = this.window.height();
-	    return this.emit('resize');
+	  RAF.prototype.start = function() {
+	    return this.id_animloop = window.requestAnimationFrame(this.animloop);
 	  };
 
-	  return Window;
+	  RAF.prototype.stop = function() {
+	    window.cancelAnimationFrame(this.id_animloop);
+	    return this.id_animloop = null;
+	  };
+
+	  RAF.prototype.animloop = function() {
+	    this.id_animloop = window.requestAnimationFrame(this.animloop);
+	    return this.emit('update');
+	  };
+
+	  return RAF;
 
 	})();
 
-	module.exports = new Window;
+	module.exports = new RAF;
 
 
 /***/ },
@@ -241,9 +259,68 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var renderer, win;
+
+	win = __webpack_require__(5);
+
+	renderer = new THREE.WebGLRenderer({
+	  antialias: true
+	});
+
+	renderer.setSize(win.width, win.height);
+
+	renderer.setClearColor("#ffffff");
+
+	renderer.shadowMapEnabled = true;
+
+	$('main').append(renderer.domElement);
+
+	module.exports = renderer;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Window, happens,
+	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+	happens = __webpack_require__(3);
+
+	Window = (function() {
+	  Window.prototype.window = $(window);
+
+	  Window.prototype.width = 0;
+
+	  Window.prototype.height = 0;
+
+	  function Window() {
+	    this.resize = __bind(this.resize, this);
+	    happens(this);
+	    this.window.on('resize', this.resize);
+	    this.resize();
+	  }
+
+	  Window.prototype.resize = function() {
+	    this.width = this.window.width();
+	    this.height = this.window.height();
+	    return this.emit('resize');
+	  };
+
+	  return Window;
+
+	})();
+
+	module.exports = new Window;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var Camera, controls;
 
-	Camera = __webpack_require__(5);
+	Camera = __webpack_require__(7);
 
 	controls = new THREE.TrackballControls(Camera, $('canvas')[0]);
 
@@ -265,12 +342,12 @@
 
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var camera, win;
 
-	win = __webpack_require__(2);
+	win = __webpack_require__(5);
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 100000);
 
@@ -282,78 +359,21 @@
 
 
 /***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	module.exports = new THREE.Scene;
-
-
-/***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var RAF, happens,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	var Settings, scene;
 
-	happens = __webpack_require__(3);
+	Settings = __webpack_require__(1);
 
-	(function() {
-	  var lastTime, vendors, x;
-	  lastTime = 0;
-	  vendors = ["ms", "moz", "o"];
-	  x = 0;
-	  while (x < vendors.length && !window.requestAnimationFrame) {
-	    window.requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
-	    window.cancelAnimationFrame = window[vendors[x] + "CancelAnimationFrame"] || window[vendors[x] + "CancelRequestAnimationFrame"];
-	    ++x;
-	  }
-	  if (!window.requestAnimationFrame) {
-	    window.requestAnimationFrame = function(callback, element) {
-	      var currTime, id, timeToCall;
-	      currTime = new Date().getTime();
-	      timeToCall = Math.max(0, 16 - (currTime - lastTime));
-	      id = window.setTimeout(function() {
-	        return callback(currTime + timeToCall);
-	      }, timeToCall);
-	      lastTime = currTime + timeToCall;
-	      return id;
-	    };
-	  }
-	  if (!window.cancelAnimationFrame) {
-	    return window.cancelAnimationFrame = function(id) {
-	      return clearTimeout(id);
-	    };
-	  }
-	})();
+	scene = new THREE.Scene;
 
-	RAF = (function() {
-	  RAF.prototype.id_animloop = null;
+	if (Settings.debug) {
+	  scene.add(new THREE.GridHelper(50, 10));
+	  scene.add(new THREE.AxisHelper(60));
+	}
 
-	  function RAF() {
-	    this.animloop = __bind(this.animloop, this);
-	    happens(this);
-	    this.start();
-	  }
-
-	  RAF.prototype.start = function() {
-	    return this.id_animloop = window.requestAnimationFrame(this.animloop);
-	  };
-
-	  RAF.prototype.stop = function() {
-	    window.cancelAnimationFrame(this.id_animloop);
-	    return this.id_animloop = null;
-	  };
-
-	  RAF.prototype.animloop = function() {
-	    this.id_animloop = window.requestAnimationFrame(this.animloop);
-	    return this.emit('update');
-	  };
-
-	  return RAF;
-
-	})();
-
-	module.exports = new RAF;
+	module.exports = scene;
 
 
 /***/ }

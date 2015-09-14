@@ -1,15 +1,13 @@
+Settings = require 'settings'
+RAF      = require 'utils/raf'
 Renderer = require 'helpers/renderer'
 Controls = require 'helpers/controls'
 Camera   = require 'helpers/camera'
 Scene    = require 'helpers/scene'
-RAF      = require 'utils/raf'
 
 class APP
 
   constructor: ->
-
-    Scene.add new THREE.GridHelper 50, 10
-    Scene.add new THREE.AxisHelper 60
 
     light = new THREE.SpotLight 0xffffff
     light.position.set 0, 20, 0
