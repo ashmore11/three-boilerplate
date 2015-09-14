@@ -24,6 +24,6 @@ class Renderer
 
   update: =>
 
-    @renderer.render Scene.scene, Camera.camera
+    @renderer.render Scene, Camera.camera
 
 module.exports = new Renderer

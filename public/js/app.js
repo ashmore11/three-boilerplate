@@ -58,7 +58,7 @@
 	APP = (function() {
 	  APP.prototype.el = $('#scene');
 
-	  APP.prototype.scene = Scene.scene;
+	  APP.prototype.scene = Scene;
 
 	  APP.prototype.renderer = Renderer.renderer;
 
@@ -257,20 +257,7 @@
 /* 3 */
 /***/ function(module, exports) {
 
-	var Scene;
-
-	Scene = (function() {
-	  Scene.prototype.scene = null;
-
-	  function Scene(el) {
-	    this.scene = new THREE.Scene;
-	  }
-
-	  return Scene;
-
-	})();
-
-	module.exports = new Scene;
+	module.exports = new THREE.Scene;
 
 
 /***/ },
@@ -307,7 +294,7 @@
 	  };
 
 	  Renderer.prototype.update = function() {
-	    return this.renderer.render(Scene.scene, Camera.camera);
+	    return this.renderer.render(Scene, Camera.camera);
 	  };
 
 	  return Renderer;

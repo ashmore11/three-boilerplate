@@ -6,7 +6,7 @@ Controls = require 'helpers/controls'
 class APP
 
   el       : $ '#scene'
-  scene    : Scene.scene
+  scene    : Scene
   renderer : Renderer.renderer
   controls : Controls.controls
 
