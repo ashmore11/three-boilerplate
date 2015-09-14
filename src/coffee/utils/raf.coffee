@@ -49,6 +49,6 @@ class RAF
  
 		@id_animloop = window.requestAnimationFrame @animloop
 
-		@emit 'update'
+		@emit 'tick'
 
 module.exports = new RAF

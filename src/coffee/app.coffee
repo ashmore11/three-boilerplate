@@ -1,33 +1,47 @@
 Settings = require 'settings'
+win      = require 'utils/window'
 RAF      = require 'utils/raf'
 Renderer = require 'helpers/renderer'
 Controls = require 'helpers/controls'
 Camera   = require 'helpers/camera'
 Scene    = require 'helpers/scene'
+View     = require 'views/index'
 
 class APP
 
   constructor: ->
+
+    if Settings.debug
+
+      Scene.add new THREE.GridHelper 50, 10
+      Scene.add new THREE.AxisHelper 60
 
     light = new THREE.SpotLight 0xffffff
     light.position.set 0, 20, 0
 
     Scene.add light
 
-    geometry = new THREE.SphereGeometry 5, 32, 32
-    material = new THREE.MeshLambertMaterial 0xffffff
-    mesh     = new THREE.Mesh geometry, material
+    @view = new View
 
-    Scene.add mesh
+    RAF.on 'tick',   @update
+    win.on 'resize', @resize
 
-    RAF.on 'update', @update
+  update: ( left, bottom, width, height ) =>
 
-  update: =>
+    Renderer.render Scene, Camera
 
-    Renderer.render( Scene, Camera )
+    Renderer.enableScissorTest true
 
     Camera.updateProjectionMatrix()
 
     Controls.update()
+
+  resize: =>
+
+    Renderer.setSize win.width, win.height
+
+    Camera.aspect = win.width / win.height
+    
+    Camera.updateProjectionMatrix()
 
 module.exports = new APP
