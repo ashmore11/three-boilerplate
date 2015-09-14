@@ -1,4 +1,4 @@
-happens  = require 'happens'
+happens = require 'happens'
 
 (->
 	lastTime = 0

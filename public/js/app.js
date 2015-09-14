@@ -70,13 +70,16 @@
 	    Renderer.appendDomElement(this.el);
 	    this.scene.add(new THREE.GridHelper(50, 10));
 	    this.scene.add(new THREE.AxisHelper(10));
-	    this.ambientLight = new THREE.AmbientLight(0xffffff);
-	    this.scene.add(this.ambientLight);
-	    geometry = new THREE.SphereGeometry(10, 16, 16);
-	    material = new THREE.MeshLambertMaterial(0x000000, {
+	    this.ambientLight = new THREE.AmbientLight(0x000000);
+	    this.spotLight = new THREE.SpotLight(0xcfcfcf);
+	    this.spotLight.position.set(0, 1000, 0);
+	    this.scene.add(this.spotLight);
+	    geometry = new THREE.SphereGeometry(10, 32, 32);
+	    material = new THREE.MeshPhongMaterial(0x000000, {
 	      wireframe: true
 	    });
 	    mesh = new THREE.Mesh(geometry, material);
+	    mesh.position.set(0, 10, 0);
 	    this.scene.add(mesh);
 	    RAF.on('update', this.update);
 	  }
