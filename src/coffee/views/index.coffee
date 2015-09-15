@@ -4,21 +4,41 @@ Scene    = require 'helpers/scene'
 
 module.exports = class Index
 
+  count  : 4
+  radius : 10
+
   constructor: ->
 
-    geometry = new THREE.SphereGeometry 10, 32, 32
-    material = new THREE.MeshLambertMaterial color: 0xffffff, wireframe: true
-    @sphere  = new THREE.Mesh geometry, material
+    @group = new THREE.Object3D
 
-    Scene.add @sphere
+    for i in [0...@count]
+
+      geometry = new THREE.SphereGeometry @radius, 32, 32
+      material = new THREE.MeshLambertMaterial color: 0xffffff, wireframe: true
+      sphere   = new THREE.Mesh geometry, material
+
+      center = i * ( @radius * 2 ) - ( @count * @radius ) + @radius
+
+      sphere.position.set 0, center, 0
+
+      @group.add sphere
+
+    Scene.add @group
 
     RAF.on 'tick', @update
 
   update: ( time ) =>
 
-    @sphere.geometry.verticesNeedUpdate = true
+    @group.rotation.z += 0.005
 
-    for face in @sphere.geometry.faces
+    for sphere, i in @group.children
 
-      face.a = Math.floor( 100 * Math.sin( time / 10000 ) + 100 )
-      face.b = Math.floor( 100 * Math.sin( time / 10000 ) + 100 )
+      sphere.rotation.y += 0.01
+
+      scale = 0.25 * Math.sin( time / 500 ) + 1.25
+
+      sphere.scale.set scale, scale, scale
+
+      y = sphere.position.y
+
+      # sphere.position.y = 

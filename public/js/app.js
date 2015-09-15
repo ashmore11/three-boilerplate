@@ -106,7 +106,8 @@
 /***/ function(module, exports) {
 
 	module.exports = {
-	  debug: true
+	  debug: false,
+	  fog: true
 	};
 
 
@@ -364,7 +365,7 @@
 
 	win = __webpack_require__(2);
 
-	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 100000);
+	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
 	camera.position.set(60, 45, 60);
 
@@ -375,9 +376,17 @@
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	var Settings;
+
+	Settings = __webpack_require__(1);
 
 	module.exports = new THREE.Scene;
+
+	if (Settings.fog) {
+	  module.exports.fog = new THREE.FogExp2(0xffffff, 0.005);
+	}
 
 
 /***/ },
@@ -394,28 +403,40 @@
 	Scene = __webpack_require__(8);
 
 	module.exports = Index = (function() {
+	  Index.prototype.count = 4;
+
+	  Index.prototype.radius = 10;
+
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    var geometry, material;
-	    geometry = new THREE.SphereGeometry(10, 32, 32);
-	    material = new THREE.MeshLambertMaterial({
-	      color: 0xffffff,
-	      wireframe: true
-	    });
-	    this.sphere = new THREE.Mesh(geometry, material);
-	    Scene.add(this.sphere);
+	    var center, geometry, i, material, sphere, _i, _ref;
+	    this.group = new THREE.Object3D;
+	    for (i = _i = 0, _ref = this.count; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+	      geometry = new THREE.SphereGeometry(this.radius, 32, 32);
+	      material = new THREE.MeshLambertMaterial({
+	        color: 0xffffff,
+	        wireframe: true
+	      });
+	      sphere = new THREE.Mesh(geometry, material);
+	      center = i * (this.radius * 2) - (this.count * this.radius) + this.radius;
+	      sphere.position.set(0, center, 0);
+	      this.group.add(sphere);
+	    }
+	    Scene.add(this.group);
 	    RAF.on('tick', this.update);
 	  }
 
 	  Index.prototype.update = function(time) {
-	    var face, _i, _len, _ref, _results;
-	    this.sphere.geometry.verticesNeedUpdate = true;
-	    _ref = this.sphere.geometry.faces;
+	    var i, scale, sphere, y, _i, _len, _ref, _results;
+	    this.group.rotation.z += 0.005;
+	    _ref = this.group.children;
 	    _results = [];
-	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      face = _ref[_i];
-	      face.a = Math.floor(100 * Math.sin(time / 10000) + 100);
-	      _results.push(face.b = Math.floor(100 * Math.sin(time / 10000) + 100));
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      sphere = _ref[i];
+	      sphere.rotation.y += 0.01;
+	      scale = 0.25 * Math.sin(time / 500) + 1.25;
+	      sphere.scale.set(scale, scale, scale);
+	      _results.push(y = sphere.position.y);
 	    }
 	    return _results;
 	  };
