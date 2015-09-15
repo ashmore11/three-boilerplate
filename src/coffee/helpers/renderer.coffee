@@ -1,27 +1,12 @@
-win    = require 'utils/window'
-RAF    = require 'utils/raf'
-Scene  = require 'helpers/scene'
-Camera = require 'helpers/camera'
+win = require 'utils/window'
 
-class Renderer
+renderer = new THREE.WebGLRenderer antialias: true
 
-  renderer: null
+renderer.setSize win.width, win.height
+renderer.setClearColor "#ffffff"
 
-  constructor: ( el ) ->
+renderer.shadowMapEnabled = on
 
-    @renderer = new THREE.WebGLRenderer antialias: true
+$('main').append renderer.domElement
 
-    @renderer.setSize win.width, win.height
-    @renderer.setClearColor 0xffffff
-
-    RAF.on 'update', @update
-
-  appendDomElement: ( el ) ->
-
-    el.append @renderer.domElement
-
-  update: =>
-
-    @renderer.render Scene.scene, Camera.camera
-
-module.exports = new Renderer
+module.exports = renderer

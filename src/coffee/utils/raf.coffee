@@ -1,4 +1,4 @@
-happens  = require 'happens'
+happens = require 'happens'
 
 (->
 	lastTime = 0
@@ -45,10 +45,10 @@ class RAF
 		
 		@id_animloop = null
 
-	animloop: ( ) =>
+	animloop: ( time ) =>
  
 		@id_animloop = window.requestAnimationFrame @animloop
 
-		@emit 'update'
+		@emit 'tick', time
 
 module.exports = new RAF
