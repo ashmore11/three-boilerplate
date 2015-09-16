@@ -403,40 +403,52 @@
 	Scene = __webpack_require__(8);
 
 	module.exports = Index = (function() {
-	  Index.prototype.count = 4;
+	  Index.prototype.count = 20;
 
 	  Index.prototype.radius = 10;
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    var center, geometry, i, material, sphere, _i, _ref;
+	    var balls, center, geometry, i, material, sphere, _i, _j, _ref;
 	    this.group = new THREE.Object3D;
-	    for (i = _i = 0, _ref = this.count; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-	      geometry = new THREE.SphereGeometry(this.radius, 32, 32);
-	      material = new THREE.MeshLambertMaterial({
-	        color: 0xffffff,
-	        wireframe: true
-	      });
-	      sphere = new THREE.Mesh(geometry, material);
-	      center = i * (this.radius * 2) - (this.count * this.radius) + this.radius;
-	      sphere.position.set(0, center, 0);
-	      this.group.add(sphere);
+	    for (i = _i = 0; _i < 20; i = ++_i) {
+	      balls = new THREE.Object3D;
+	      balls.position.x = (i * 30) - 500;
+	      for (i = _j = 0, _ref = this.count; 0 <= _ref ? _j < _ref : _j > _ref; i = 0 <= _ref ? ++_j : --_j) {
+	        geometry = new THREE.SphereGeometry(this.radius, 32, 32);
+	        material = new THREE.MeshLambertMaterial({
+	          color: 0xffffff,
+	          wireframe: true
+	        });
+	        sphere = new THREE.Mesh(geometry, material);
+	        center = i * (this.radius * 2) - (this.count * this.radius) + this.radius;
+	        sphere.position.set(0, center * 1.5, 0);
+	        balls.add(sphere);
+	      }
+	      this.group.add(balls);
 	    }
 	    Scene.add(this.group);
 	    RAF.on('tick', this.update);
 	  }
 
 	  Index.prototype.update = function(time) {
-	    var i, scale, sphere, y, _i, _len, _ref, _results;
-	    this.group.rotation.z += 0.005;
+	    var balls, scale, sphere, _i, _len, _ref, _results;
 	    _ref = this.group.children;
 	    _results = [];
-	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-	      sphere = _ref[i];
-	      sphere.rotation.y += 0.01;
-	      scale = 0.25 * Math.sin(time / 500) + 1.25;
-	      sphere.scale.set(scale, scale, scale);
-	      _results.push(y = sphere.position.y);
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      balls = _ref[_i];
+	      _results.push((function() {
+	        var _j, _len1, _ref1, _results1;
+	        _ref1 = balls.children;
+	        _results1 = [];
+	        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+	          sphere = _ref1[_j];
+	          sphere.rotation.y = 0.5 * Math.sin(time / 500) + 1.5;
+	          scale = 0.25 * Math.sin(time / 500) + 1.25;
+	          _results1.push(sphere.scale.set(scale, scale, scale));
+	        }
+	        return _results1;
+	      })());
 	    }
 	    return _results;
 	  };
