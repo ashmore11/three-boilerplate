@@ -1,6 +1,7 @@
-Settings = require 'settings'
-RAF      = require 'utils/raf'
-Scene    = require 'helpers/scene'
+Settings    = require 'settings'
+RAF         = require 'utils/raf'
+Scene       = require 'helpers/scene'
+randomColor = require 'randomcolor'
 
 module.exports = class Index
 
@@ -19,8 +20,9 @@ module.exports = class Index
 
       for i in [0...@count]
 
-        geometry = new THREE.SphereGeometry @radius, 32, 32
-        material = new THREE.MeshLambertMaterial color: 0xffffff, wireframe: true
+        geometry = new THREE.OctahedronGeometry 10, 0
+        # geometry = new THREE.SphereGeometry @radius, 16, 16
+        material = new THREE.MeshPhongMaterial color: randomColor(luminosity: 'light'), wireframe: true
         sphere   = new THREE.Mesh geometry, material
 
         center = i * ( @radius * 2 ) - ( @count * @radius ) + @radius
@@ -41,7 +43,9 @@ module.exports = class Index
 
       for sphere in balls.children
 
-        sphere.rotation.y = 0.5 * Math.sin( time / 500 ) + 1.5
+        sphere.rotation.x = Math.sin( time / 500 )
+        sphere.rotation.y = Math.sin( time / 500 )
+        sphere.rotation.z = Math.sin( time / 500 )
 
         scale = 0.25 * Math.sin( time / 500 ) + 1.25
 

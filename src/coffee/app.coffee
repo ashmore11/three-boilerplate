@@ -17,9 +17,9 @@ class APP
       Scene.add new THREE.AxisHelper 60
 
     light = new THREE.SpotLight 0xffffff
-    light.position.set 0, 20, 0
+    light.position.set -200, 200, 0
 
-    # Scene.add light
+    Scene.add light
 
     @view = new View
 
