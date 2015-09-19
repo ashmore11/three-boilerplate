@@ -3,7 +3,7 @@ win = require 'utils/window'
 renderer = new THREE.WebGLRenderer antialias: true
 
 renderer.setSize win.width, win.height
-renderer.setClearColor "#ffffff"
+renderer.setClearColor 0x000000
 
 renderer.shadowMapEnabled = on
 

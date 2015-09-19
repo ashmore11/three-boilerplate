@@ -13,13 +13,8 @@ class APP
 
     if Settings.debug
 
-      Scene.add new THREE.GridHelper 50, 10
+      # Scene.add new THREE.GridHelper 50, 10
       Scene.add new THREE.AxisHelper 60
-
-    light = new THREE.SpotLight 0xffffff
-    light.position.set -200, 200, 0
-
-    Scene.add light
 
     @view = new View
 

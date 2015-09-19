@@ -1,52 +1,84 @@
-Settings    = require 'settings'
-RAF         = require 'utils/raf'
-Scene       = require 'helpers/scene'
-randomColor = require 'randomcolor'
+Settings = require 'settings'
+RAF      = require 'utils/raf'
+Scene    = require 'helpers/scene'
+Camera   = require 'helpers/camera'
 
 module.exports = class Index
 
-  count  : 20
-  radius : 10
+  avgVertexNormals: []
 
   constructor: ->
 
-    @group = new THREE.Object3D
+    geometry     = new THREE.IcosahedronGeometry 20, 0
+    material     = new THREE.MeshNormalMaterial color: 0xffffff, wireframe: true
+    @icosahedron = new THREE.Mesh geometry, material
 
-    for i in [0...20]
+    Scene.add @icosahedron
 
-      balls = new THREE.Object3D
-
-      balls.position.x = ( i * 30 ) - 500
-
-      for i in [0...@count]
-
-        geometry = new THREE.OctahedronGeometry 10, 0
-        # geometry = new THREE.SphereGeometry @radius, 16, 16
-        material = new THREE.MeshPhongMaterial color: randomColor(luminosity: 'light'), wireframe: true
-        sphere   = new THREE.Mesh geometry, material
-
-        center = i * ( @radius * 2 ) - ( @count * @radius ) + @radius
-
-        sphere.position.set 0, center * 1.5, 0
-
-        balls.add sphere
-
-      @group.add balls
-
-    Scene.add @group
+    @seperateGeometry()
+    @getAverage()
 
     RAF.on 'tick', @update
 
+  seperateGeometry: ->
+
+    geometry = @icosahedron.geometry
+    vertices = []
+
+    for i in [0...geometry.faces.length]
+
+      n = vertices.length
+
+      face = geometry.faces[ i ]
+
+      a = face.a
+      b = face.b
+      c = face.c
+
+      va = geometry.vertices[ a ]
+      vb = geometry.vertices[ b ]
+      vc = geometry.vertices[ c ]
+
+      vertices.push va.clone()
+      vertices.push vb.clone()
+      vertices.push vc.clone()
+
+      face.a = n
+      face.b = n + 1
+      face.c = n + 2
+
+    geometry.vertices = vertices
+
+  getAverage: ->
+    
+    for i in [0...@icosahedron.geometry.vertices.length]
+      
+      @avgVertexNormals.push new THREE.Vector3
+
+    # first add all the normals
+    for face in @icosahedron.geometry.faces
+
+      va = face.vertexNormals[ 0 ]
+      vb = face.vertexNormals[ 1 ]
+      vc = face.vertexNormals[ 2 ]
+      
+      # add the vectors
+      @avgVertexNormals[ face.a ].add va
+      @avgVertexNormals[ face.b ].add vb
+      @avgVertexNormals[ face.c ].add vc
+
+  explodeGeometry: ->
+
+    for vertex, i in @icosahedron.geometry.vertices
+      
+      vertex.x += @avgVertexNormals[ i ].x * 0.02
+      vertex.y += @avgVertexNormals[ i ].y * 0.02
+      vertex.z += @avgVertexNormals[ i ].z * 0.02
+
   update: ( time ) =>
 
-    for balls in @group.children
+    @explodeGeometry()
 
-      for sphere in balls.children
+    @icosahedron.rotation.y += 0.01    
 
-        sphere.rotation.x = Math.sin( time / 500 )
-        sphere.rotation.y = Math.sin( time / 500 )
-        sphere.rotation.z = Math.sin( time / 500 )
-
-        scale = 0.25 * Math.sin( time / 500 ) + 1.25
-
-        sphere.scale.set scale, scale, scale
+    @icosahedron.geometry.verticesNeedUpdate = true
