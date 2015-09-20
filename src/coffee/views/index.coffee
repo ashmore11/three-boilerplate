@@ -6,17 +6,19 @@ Camera   = require 'helpers/camera'
 module.exports = class Index
 
   avgVertexNormals: []
+  faces: []
 
   constructor: ->
 
     geometry     = new THREE.IcosahedronGeometry 20, 0
-    material     = new THREE.MeshNormalMaterial color: 0xffffff, wireframe: true
+    material     = new THREE.MeshNormalMaterial color: 0xffffff, wireframe: true, side: THREE.DoubleSide
     @icosahedron = new THREE.Mesh geometry, material
 
     Scene.add @icosahedron
 
     @seperateGeometry()
     @getAverage()
+    @getFaces()
 
     RAF.on 'tick', @update
 
@@ -67,18 +69,32 @@ module.exports = class Index
       @avgVertexNormals[ face.b ].add vb
       @avgVertexNormals[ face.c ].add vc
 
-  explodeGeometry: ->
+  getFaces: ->
 
     for vertex, i in @icosahedron.geometry.vertices
-      
-      vertex.x += @avgVertexNormals[ i ].x * 0.02
-      vertex.y += @avgVertexNormals[ i ].y * 0.02
-      vertex.z += @avgVertexNormals[ i ].z * 0.02
+
+      faceGroup = []
+
+      if i % 3 is 0
+
+        faceGroup.push vertex
+
+      @faces.push faceGroup
+
+    console.log @faces
+
+  explodeGeometry: ->
+
+    # for vertex, i in @icosahedron.geometry.vertices
+        
+    #   vertex.x += @avgVertexNormals[ i ].x * 0.02 * -1
+    #   vertex.y += @avgVertexNormals[ i ].y * 0.02 * -1
+    #   vertex.z += @avgVertexNormals[ i ].z * 0.02 * -1
 
   update: ( time ) =>
 
     @explodeGeometry()
 
-    @icosahedron.rotation.y += 0.01    
+    # @icosahedron.rotation.y += 0.01
 
     @icosahedron.geometry.verticesNeedUpdate = true

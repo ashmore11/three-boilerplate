@@ -67,9 +67,13 @@
 	  function APP() {
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
+	    var light;
 	    if (Settings.debug) {
 	      Scene.add(new THREE.AxisHelper(60));
 	    }
+	    light = new THREE.SpotLight(0xffffff);
+	    light.position.set(0, 200, 0);
+	    Scene.add(light);
 	    this.view = new View;
 	    RAF.on('tick', this.update);
 	    win.on('resize', this.resize);
@@ -403,18 +407,22 @@
 	module.exports = Index = (function() {
 	  Index.prototype.avgVertexNormals = [];
 
+	  Index.prototype.faces = [];
+
 	  function Index() {
 	    this.update = __bind(this.update, this);
 	    var geometry, material;
 	    geometry = new THREE.IcosahedronGeometry(20, 0);
 	    material = new THREE.MeshNormalMaterial({
 	      color: 0xffffff,
-	      wireframe: true
+	      wireframe: true,
+	      side: THREE.DoubleSide
 	    });
 	    this.icosahedron = new THREE.Mesh(geometry, material);
 	    Scene.add(this.icosahedron);
 	    this.seperateGeometry();
 	    this.getAverage();
+	    this.getFaces();
 	    RAF.on('tick', this.update);
 	  }
 
@@ -460,22 +468,24 @@
 	    return _results;
 	  };
 
-	  Index.prototype.explodeGeometry = function() {
-	    var i, vertex, _i, _len, _ref, _results;
+	  Index.prototype.getFaces = function() {
+	    var faceGroup, i, vertex, _i, _len, _ref;
 	    _ref = this.icosahedron.geometry.vertices;
-	    _results = [];
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      vertex = _ref[i];
-	      vertex.x += this.avgVertexNormals[i].x * 0.02;
-	      vertex.y += this.avgVertexNormals[i].y * 0.02;
-	      _results.push(vertex.z += this.avgVertexNormals[i].z * 0.02);
+	      faceGroup = [];
+	      if (i % 3 === 0) {
+	        faceGroup.push(vertex);
+	      }
+	      this.faces.push(faceGroup);
 	    }
-	    return _results;
+	    return console.log(this.faces);
 	  };
+
+	  Index.prototype.explodeGeometry = function() {};
 
 	  Index.prototype.update = function(time) {
 	    this.explodeGeometry();
-	    this.icosahedron.rotation.y += 0.01;
 	    return this.icosahedron.geometry.verticesNeedUpdate = true;
 	  };
 
