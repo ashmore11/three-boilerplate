@@ -68,8 +68,8 @@
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
 	    var light;
-	    light = new THREE.SpotLight(0xffffff);
-	    light.position.set(0, 200, 0);
+	    light = new THREE.PointLight(0xffffff);
+	    light.position.set(0, 0, 0);
 	    Scene.add(light);
 	    this.view = new View;
 	    RAF.on('tick', this.update);
@@ -409,17 +409,23 @@
 	  function Index() {
 	    this.update = __bind(this.update, this);
 	    var geometry, material;
+	    geometry = new THREE.SphereGeometry(15, 64, 64);
+	    material = new THREE.MeshBasicMaterial({
+	      color: 0xffffff
+	    });
+	    this.sphere = new THREE.Mesh(geometry, material);
+	    Scene.add(this.sphere);
 	    geometry = new THREE.IcosahedronGeometry(20, 0);
-	    material = new THREE.MeshNormalMaterial({
+	    material = new THREE.MeshPhongMaterial({
 	      color: 0xffffff,
-	      wireframe: true,
+	      wireframe: false,
 	      side: THREE.DoubleSide
 	    });
 	    this.icosahedron = new THREE.Mesh(geometry, material);
 	    Scene.add(this.icosahedron);
 	    this.seperateGeometry();
-	    this.getAverage();
 	    this.getFaces();
+	    this.icosahedron.position.x = 0;
 	    RAF.on('tick', this.update);
 	  }
 
@@ -446,27 +452,9 @@
 	    return geometry.vertices = vertices;
 	  };
 
-	  Index.prototype.getAverage = function() {
-	    var face, i, va, vb, vc, _i, _j, _len, _ref, _ref1, _results;
-	    for (i = _i = 0, _ref = this.icosahedron.geometry.vertices.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-	      this.avgVertexNormals.push(new THREE.Vector3);
-	    }
-	    _ref1 = this.icosahedron.geometry.faces;
-	    _results = [];
-	    for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
-	      face = _ref1[_j];
-	      va = face.vertexNormals[0];
-	      vb = face.vertexNormals[1];
-	      vc = face.vertexNormals[2];
-	      this.avgVertexNormals[face.a].add(va);
-	      this.avgVertexNormals[face.b].add(vb);
-	      _results.push(this.avgVertexNormals[face.c].add(vc));
-	    }
-	    return _results;
-	  };
-
 	  Index.prototype.getFaces = function() {
-	    var faceGroup, i, vertex, _i, _len, _ref;
+	    var center, cx, cy, cz, diff, face, faceGroup, i, length, vertex, _i, _j, _len, _len1, _ref, _ref1, _results;
+	    faceGroup = [];
 	    _ref = this.icosahedron.geometry.vertices;
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      vertex = _ref[i];
@@ -476,10 +464,31 @@
 	        }
 	        faceGroup = [];
 	      }
-	      vertex.index = i;
-	      faceGroup.push(vertex);
+	      if (i === 57) {
+	        vertex.index = i;
+	        faceGroup = [];
+	        faceGroup.push(vertex);
+	        this.faces.push(faceGroup);
+	      } else {
+	        vertex.index = i;
+	        faceGroup.push(vertex);
+	      }
 	    }
-	    return this.tweenFaces();
+	    _ref1 = this.faces;
+	    _results = [];
+	    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+	      face = _ref1[_j];
+	      cx = (face[0].x + face[1].x + face[2].x) / 3;
+	      cy = (face[0].y + face[1].y + face[2].y) / 3;
+	      cz = (face[0].z + face[1].z + face[2].z) / 3;
+	      center = new THREE.Vector3(cx, cy, cz);
+	      diff = center.sub(Scene.position);
+	      length = diff.length();
+	      diff.normalize();
+	      diff.multiplyScalar(2);
+	      _results.push(face.diff = diff);
+	    }
+	    return _results;
 	  };
 
 	  Index.prototype.tweenFaces = function() {
@@ -497,46 +506,33 @@
 	          y = vertex.y;
 	          z = vertex.z;
 	          params = {
-	            x: x + this.avgVertexNormals[vertex.index].x * 10,
-	            y: y + this.avgVertexNormals[vertex.index].y * 10,
-	            z: z + this.avgVertexNormals[vertex.index].z * 10,
-	            delay: i * 0.1,
-	            ease: Power1.easeInOut
+	            x: x + face.diff.x,
+	            y: y + face.diff.y,
+	            z: z + face.diff.z,
+	            delay: i * 0.05,
+	            ease: Expo.easeInOut
 	          };
-	          _results1.push(TweenMax.to(vertex, 0.5, params));
+	          _results1.push(TweenMax.to(vertex, 2, params));
 	        }
 	        return _results1;
-	      }).call(this));
-	    }
-	    return _results;
-	  };
-
-	  Index.prototype.explodeGeometry = function() {
-	    var face, i, vertex, _i, _len, _ref, _results;
-	    _ref = this.faces;
-	    _results = [];
-	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-	      face = _ref[i];
-	      if (i % 3 === 0) {
-	        _results.push((function() {
-	          var _j, _len1, _results1;
-	          _results1 = [];
-	          for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
-	            vertex = face[_j];
-	            vertex.x += this.avgVertexNormals[vertex.index].x * 0.02;
-	            vertex.y += this.avgVertexNormals[vertex.index].y * 0.02;
-	            _results1.push(vertex.z += this.avgVertexNormals[vertex.index].z * 0.02);
-	          }
-	          return _results1;
-	        }).call(this));
-	      } else {
-	        _results.push(void 0);
-	      }
+	      })());
 	    }
 	    return _results;
 	  };
 
 	  Index.prototype.update = function(time) {
+	    var face, i, vertex, _i, _j, _len, _len1, _ref;
+	    this.icosahedron.rotation.y += 0.01;
+	    _ref = this.faces;
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      face = _ref[i];
+	      for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
+	        vertex = face[_j];
+	        vertex.x += (face.diff.x * 0.01) * Math.sin(time / 500);
+	        vertex.y += (face.diff.y * 0.01) * Math.sin(time / 500);
+	        vertex.z += (face.diff.z * 0.01) * Math.sin(time / 500);
+	      }
+	    }
 	    return this.icosahedron.geometry.verticesNeedUpdate = true;
 	  };
 

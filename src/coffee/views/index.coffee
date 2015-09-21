@@ -10,15 +10,24 @@ module.exports = class Index
 
   constructor: ->
 
+    geometry = new THREE.SphereGeometry 15, 64, 64
+    material = new THREE.MeshBasicMaterial color: 0xffffff
+    @sphere  = new THREE.Mesh geometry, material
+
+    Scene.add @sphere
+
     geometry     = new THREE.IcosahedronGeometry 20, 0
-    material     = new THREE.MeshNormalMaterial color: 0xffffff, wireframe: true, side: THREE.DoubleSide
+    material     = new THREE.MeshPhongMaterial color: 0xffffff, wireframe: false, side: THREE.DoubleSide
     @icosahedron = new THREE.Mesh geometry, material
 
     Scene.add @icosahedron
 
     @seperateGeometry()
-    @getAverage()
+    # @getAverage()
     @getFaces()
+    # @tweenFaces()
+
+    @icosahedron.position.x = 0
 
     RAF.on 'tick', @update
 
@@ -51,25 +60,9 @@ module.exports = class Index
 
     geometry.vertices = vertices
 
-  getAverage: ->
-    
-    for i in [0...@icosahedron.geometry.vertices.length]
-      
-      @avgVertexNormals.push new THREE.Vector3
-
-    # first add all the normals
-    for face in @icosahedron.geometry.faces
-
-      va = face.vertexNormals[ 0 ]
-      vb = face.vertexNormals[ 1 ]
-      vc = face.vertexNormals[ 2 ]
-      
-      # add the vectors
-      @avgVertexNormals[ face.a ].add va
-      @avgVertexNormals[ face.b ].add vb
-      @avgVertexNormals[ face.c ].add vc
-
   getFaces: ->
+
+    faceGroup = []
 
     for vertex, i in @icosahedron.geometry.vertices
 
@@ -79,11 +72,40 @@ module.exports = class Index
 
         faceGroup = []
 
-      vertex.index = i
+      if i is 57
 
-      faceGroup.push vertex
+        vertex.index = i
 
-    @tweenFaces()
+        faceGroup = []
+
+        faceGroup.push vertex
+
+        @faces.push faceGroup
+
+      else
+
+        vertex.index = i
+
+        faceGroup.push vertex
+
+    for face in @faces
+
+      cx = ( face[0].x + face[1].x + face[2].x ) / 3
+      cy = ( face[0].y + face[1].y + face[2].y ) / 3
+      cz = ( face[0].z + face[1].z + face[2].z ) / 3
+
+      center = new THREE.Vector3 cx, cy, cz
+      diff   = center.sub Scene.position
+      length = diff.length()
+
+      diff.normalize()
+      diff.multiplyScalar 2
+
+      face.diff = diff
+
+      # for vertex in face
+
+      #   vertex.add diff
 
   tweenFaces: ->
 
@@ -96,30 +118,24 @@ module.exports = class Index
         z = vertex.z
 
         params =
-          x     : x + @avgVertexNormals[ vertex.index ].x * 10
-          y     : y + @avgVertexNormals[ vertex.index ].y * 10
-          z     : z + @avgVertexNormals[ vertex.index ].z * 10
-          delay : i * 0.1
-          ease  : Power1.easeInOut
+          x     : x + face.diff.x
+          y     : y + face.diff.y
+          z     : z + face.diff.z
+          delay : i * 0.05
+          ease  : Expo.easeInOut
 
-        TweenMax.to vertex, 0.5, params
-
-  explodeGeometry: ->
-
-    for face, i in @faces
-
-      if i % 3 is 0
-
-        for vertex in face
-            
-          vertex.x += @avgVertexNormals[ vertex.index ].x * 0.02
-          vertex.y += @avgVertexNormals[ vertex.index ].y * 0.02
-          vertex.z += @avgVertexNormals[ vertex.index ].z * 0.02
+        TweenMax.to vertex, 2, params
 
   update: ( time ) =>
 
-    # @explodeGeometry()
+    @icosahedron.rotation.y += 0.01
 
-    # @icosahedron.rotation.y += 0.01
+    for face, i in @faces
+
+      for vertex in face
+          
+        vertex.x += ( ( face.diff.x * 0.01 ) * Math.sin(time / 500) )
+        vertex.y += ( ( face.diff.y * 0.01 ) * Math.sin(time / 500) )
+        vertex.z += ( ( face.diff.z * 0.01 ) * Math.sin(time / 500) )
 
     @icosahedron.geometry.verticesNeedUpdate = true
