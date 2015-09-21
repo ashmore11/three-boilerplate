@@ -23,8 +23,8 @@ module.exports = class Index
     Scene.add @icosahedron
 
     @seperateGeometry()
-    # @getAverage()
     @getFaces()
+    @getNewPosition()
     # @tweenFaces()
 
     @icosahedron.position.x = 0
@@ -36,11 +36,9 @@ module.exports = class Index
     geometry = @icosahedron.geometry
     vertices = []
 
-    for i in [0...geometry.faces.length]
+    for face, i in geometry.faces
 
       n = vertices.length
-
-      face = geometry.faces[ i ]
 
       a = face.a
       b = face.b
@@ -62,9 +60,9 @@ module.exports = class Index
 
   getFaces: ->
 
-    faceGroup = []
-
     for vertex, i in @icosahedron.geometry.vertices
+
+      vertex.index = i
 
       if i % 3 is 0
 
@@ -74,8 +72,6 @@ module.exports = class Index
 
       if i is 57
 
-        vertex.index = i
-
         faceGroup = []
 
         faceGroup.push vertex
@@ -84,9 +80,9 @@ module.exports = class Index
 
       else
 
-        vertex.index = i
-
         faceGroup.push vertex
+
+  getNewPosition: ->
 
     for face in @faces
 
@@ -102,10 +98,6 @@ module.exports = class Index
       diff.multiplyScalar 2
 
       face.diff = diff
-
-      # for vertex in face
-
-      #   vertex.add diff
 
   tweenFaces: ->
 
@@ -134,8 +126,8 @@ module.exports = class Index
 
       for vertex in face
           
-        vertex.x += ( ( face.diff.x * 0.01 ) * Math.sin(time / 500) )
-        vertex.y += ( ( face.diff.y * 0.01 ) * Math.sin(time / 500) )
-        vertex.z += ( ( face.diff.z * 0.01 ) * Math.sin(time / 500) )
+        vertex.x += ( face.diff.x * 0.01 ) * Math.sin( time / 500 )
+        vertex.y += ( face.diff.y * 0.01 ) * Math.sin( time / 500 )
+        vertex.z += ( face.diff.z * 0.01 ) * Math.sin( time / 500 )
 
     @icosahedron.geometry.verticesNeedUpdate = true

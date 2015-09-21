@@ -104,7 +104,7 @@
 
 	module.exports = {
 	  debug: true,
-	  fog: true
+	  fog: false
 	};
 
 
@@ -425,17 +425,19 @@
 	    Scene.add(this.icosahedron);
 	    this.seperateGeometry();
 	    this.getFaces();
+	    this.getNewPosition();
 	    this.icosahedron.position.x = 0;
 	    RAF.on('tick', this.update);
 	  }
 
 	  Index.prototype.seperateGeometry = function() {
-	    var a, b, c, face, geometry, i, n, va, vb, vc, vertices, _i, _ref;
+	    var a, b, c, face, geometry, i, n, va, vb, vc, vertices, _i, _len, _ref;
 	    geometry = this.icosahedron.geometry;
 	    vertices = [];
-	    for (i = _i = 0, _ref = geometry.faces.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+	    _ref = geometry.faces;
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      face = _ref[i];
 	      n = vertices.length;
-	      face = geometry.faces[i];
 	      a = face.a;
 	      b = face.b;
 	      c = face.c;
@@ -453,11 +455,12 @@
 	  };
 
 	  Index.prototype.getFaces = function() {
-	    var center, cx, cy, cz, diff, face, faceGroup, i, length, vertex, _i, _j, _len, _len1, _ref, _ref1, _results;
-	    faceGroup = [];
+	    var faceGroup, i, vertex, _i, _len, _ref, _results;
 	    _ref = this.icosahedron.geometry.vertices;
+	    _results = [];
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      vertex = _ref[i];
+	      vertex.index = i;
 	      if (i % 3 === 0) {
 	        if (i !== 0) {
 	          this.faces.push(faceGroup);
@@ -465,19 +468,22 @@
 	        faceGroup = [];
 	      }
 	      if (i === 57) {
-	        vertex.index = i;
 	        faceGroup = [];
 	        faceGroup.push(vertex);
-	        this.faces.push(faceGroup);
+	        _results.push(this.faces.push(faceGroup));
 	      } else {
-	        vertex.index = i;
-	        faceGroup.push(vertex);
+	        _results.push(faceGroup.push(vertex));
 	      }
 	    }
-	    _ref1 = this.faces;
+	    return _results;
+	  };
+
+	  Index.prototype.getNewPosition = function() {
+	    var center, cx, cy, cz, diff, face, length, _i, _len, _ref, _results;
+	    _ref = this.faces;
 	    _results = [];
-	    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-	      face = _ref1[_j];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      face = _ref[_i];
 	      cx = (face[0].x + face[1].x + face[2].x) / 3;
 	      cy = (face[0].y + face[1].y + face[2].y) / 3;
 	      cz = (face[0].z + face[1].z + face[2].z) / 3;
