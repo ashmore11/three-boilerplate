@@ -11,15 +11,15 @@ class APP
 
   constructor: ->
 
-    # if Settings.debug
+    if Settings.debug
 
-      # Scene.add new THREE.GridHelper 50, 10
-      # Scene.add new THREE.AxisHelper 60
+      Scene.add new THREE.GridHelper 50, 10
+      Scene.add new THREE.AxisHelper 60
 
-    # light = new THREE.SpotLight 0xaaaaaa
-    # light.position.set 0, 100, 0
+    light = new THREE.SpotLight 0x555555
+    light.position.set 0, 100, 0
 
-    # Scene.add light
+    Scene.add light
 
     light = new THREE.PointLight 0xffffff
     light.position.set 0, 0, 0
@@ -33,12 +33,12 @@ class APP
 
   update: =>
 
-    Renderer.setViewport 0, 0, win.width, win.height
-    Renderer.setScissor  0, 0, win.width, win.height
+    # Renderer.setViewport 0, 0, win.width, win.height
+    # Renderer.setScissor  0, 0, win.width, win.height
 
-    Renderer.enableScissorTest true
+    # Renderer.enableScissorTest true
 
-    Renderer.render Scene, Camera
+    # Renderer.render Scene, Camera
 
     Camera.updateProjectionMatrix()
 
