@@ -68,9 +68,6 @@
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
 	    var light;
-	    if (Settings.debug) {
-	      Scene.add(new THREE.AxisHelper(60));
-	    }
 	    light = new THREE.SpotLight(0xffffff);
 	    light.position.set(0, 200, 0);
 	    Scene.add(light);
@@ -473,19 +470,73 @@
 	    _ref = this.icosahedron.geometry.vertices;
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      vertex = _ref[i];
-	      faceGroup = [];
 	      if (i % 3 === 0) {
-	        faceGroup.push(vertex);
+	        if (i !== 0) {
+	          this.faces.push(faceGroup);
+	        }
+	        faceGroup = [];
 	      }
-	      this.faces.push(faceGroup);
+	      vertex.index = i;
+	      faceGroup.push(vertex);
 	    }
-	    return console.log(this.faces);
+	    return this.tweenFaces();
 	  };
 
-	  Index.prototype.explodeGeometry = function() {};
+	  Index.prototype.tweenFaces = function() {
+	    var face, i, params, vertex, x, y, z, _i, _len, _ref, _results;
+	    _ref = this.faces;
+	    _results = [];
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      face = _ref[i];
+	      _results.push((function() {
+	        var _j, _len1, _results1;
+	        _results1 = [];
+	        for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
+	          vertex = face[_j];
+	          x = vertex.x;
+	          y = vertex.y;
+	          z = vertex.z;
+	          params = {
+	            x: x + this.avgVertexNormals[vertex.index].x * 10,
+	            y: y + this.avgVertexNormals[vertex.index].y * 10,
+	            z: z + this.avgVertexNormals[vertex.index].z * 10,
+	            delay: i * 0.1,
+	            ease: Power1.easeInOut
+	          };
+	          _results1.push(TweenMax.to(vertex, 0.5, params));
+	        }
+	        return _results1;
+	      }).call(this));
+	    }
+	    return _results;
+	  };
+
+	  Index.prototype.explodeGeometry = function() {
+	    var face, i, vertex, _i, _len, _ref, _results;
+	    _ref = this.faces;
+	    _results = [];
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      face = _ref[i];
+	      if (i % 3 === 0) {
+	        _results.push((function() {
+	          var _j, _len1, _results1;
+	          _results1 = [];
+	          for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
+	            vertex = face[_j];
+	            vertex.x += this.avgVertexNormals[vertex.index].x * 0.02;
+	            vertex.y += this.avgVertexNormals[vertex.index].y * 0.02;
+	            _results1.push(vertex.z += this.avgVertexNormals[vertex.index].z * 0.02);
+	          }
+	          return _results1;
+	        }).call(this));
+	      } else {
+	        _results.push(void 0);
+	      }
+	    }
+	    return _results;
+	  };
 
 	  Index.prototype.update = function(time) {
-	    this.explodeGeometry();
 	    return this.icosahedron.geometry.verticesNeedUpdate = true;
 	  };
 

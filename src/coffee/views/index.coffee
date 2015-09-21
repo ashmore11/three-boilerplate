@@ -73,27 +73,52 @@ module.exports = class Index
 
     for vertex, i in @icosahedron.geometry.vertices
 
-      faceGroup = []
-
       if i % 3 is 0
 
-        faceGroup.push vertex
+        @faces.push faceGroup unless i is 0
 
-      @faces.push faceGroup
+        faceGroup = []
 
-    console.log @faces
+      vertex.index = i
+
+      faceGroup.push vertex
+
+    @tweenFaces()
+
+  tweenFaces: ->
+
+    for face, i in @faces
+
+      for vertex in face
+          
+        x = vertex.x
+        y = vertex.y
+        z = vertex.z
+
+        params =
+          x     : x + @avgVertexNormals[ vertex.index ].x * 10
+          y     : y + @avgVertexNormals[ vertex.index ].y * 10
+          z     : z + @avgVertexNormals[ vertex.index ].z * 10
+          delay : i * 0.1
+          ease  : Power1.easeInOut
+
+        TweenMax.to vertex, 0.5, params
 
   explodeGeometry: ->
 
-    # for vertex, i in @icosahedron.geometry.vertices
-        
-    #   vertex.x += @avgVertexNormals[ i ].x * 0.02 * -1
-    #   vertex.y += @avgVertexNormals[ i ].y * 0.02 * -1
-    #   vertex.z += @avgVertexNormals[ i ].z * 0.02 * -1
+    for face, i in @faces
+
+      if i % 3 is 0
+
+        for vertex in face
+            
+          vertex.x += @avgVertexNormals[ vertex.index ].x * 0.02
+          vertex.y += @avgVertexNormals[ vertex.index ].y * 0.02
+          vertex.z += @avgVertexNormals[ vertex.index ].z * 0.02
 
   update: ( time ) =>
 
-    @explodeGeometry()
+    # @explodeGeometry()
 
     # @icosahedron.rotation.y += 0.01
 
