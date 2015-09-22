@@ -15,18 +15,12 @@ module.exports = class Index
 
     @innerSphere()
     @outerSphere()
+    @groupObjects()
     @seperateGeometry()
-    @getFaces()
+    @createFaceArray()
     @getNewPosition()
     @colorFaces()
     @tweenFaces()
-
-    @groupedObjects = new THREE.Object3D
-
-    @groupedObjects.add @glowBall
-    @groupedObjects.add @mainSphere
-
-    Scene.add @groupedObjects
 
     RAF.on 'tick', @update
 
@@ -59,6 +53,15 @@ module.exports = class Index
     @mainSphere.castShadow    = true
     @mainSphere.receiveShadow = true
 
+  groupObjects: ->
+
+    @groupedObjects = new THREE.Object3D
+
+    @groupedObjects.add @glowBall
+    @groupedObjects.add @mainSphere
+
+    Scene.add @groupedObjects
+
   seperateGeometry: ->
 
     geometry = @mainSphere.geometry
@@ -86,7 +89,7 @@ module.exports = class Index
 
     geometry.vertices = vertices
 
-  getFaces: ->
+  createFaceArray: ->
 
     for vertex, i in @mainSphere.geometry.vertices
 
@@ -111,7 +114,7 @@ module.exports = class Index
       length = diff.length()
 
       diff.normalize()
-      diff.multiplyScalar 2
+      diff.multiplyScalar 8
 
       face.diff = diff
 
@@ -134,9 +137,9 @@ module.exports = class Index
         z = vertex.z
 
         params =
-          x      : vertex.x + face.diff.x * 4
-          y      : vertex.y + face.diff.y * 4
-          z      : vertex.z + face.diff.z * 4
+          x      : vertex.x + face.diff.x #( Math.random() * 10 )
+          y      : vertex.y + face.diff.y #( Math.random() * 10 )
+          z      : vertex.z + face.diff.z #( Math.random() * 10 )
           delay  : i * 0.005
           ease   : Power1.easeInOut
           repeat : -1
@@ -147,10 +150,11 @@ module.exports = class Index
   update: ( time ) =>
 
     @mainSphere.rotation.y -= 0.01
+    # @mainSphere.rotation.x += 0.01
 
     @mainSphere.geometry.verticesNeedUpdate = true
     @mainSphere.geometry.colorsNeedUpdate   = true
       
-    @mainSphere.scale.x = 0.05 * Math.sin( time / 500 ) + 1.05
-    @mainSphere.scale.y = 0.05 * Math.sin( time / 500 ) + 1.05
-    @mainSphere.scale.z = 0.05 * Math.sin( time / 500 ) + 1.05
+    # @mainSphere.scale.x = 0.08 * Math.sin( time / 500 ) + 1
+    # @mainSphere.scale.y = 0.08 * Math.sin( time / 500 ) + 1
+    # @mainSphere.scale.z = 0.08 * Math.sin( time / 500 ) + 1

@@ -1,5 +1,5 @@
 spotLight1 = new THREE.SpotLight 0xffffff
-spotLight1.position.set 60, 100, 60
+spotLight1.position.set 0, 100, 0
 
 spotLight2 = new THREE.SpotLight 0xffffff, 0
 spotLight2.position.set 0, 100, 0

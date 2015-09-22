@@ -17,7 +17,6 @@
     "gsap": "~1.16.1",
     "lodash": "~3.10.0",
     "threejs": "*",
-    "trackballControls": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/controls/TrackballControls.js",
-    "explodeModifier": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/modifiers/ExplodeModifier.js"
+    "trackballControls": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/controls/TrackballControls.js"
   }
 }
