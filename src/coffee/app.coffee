@@ -4,6 +4,7 @@ RAF      = require 'utils/raf'
 Renderer = require 'helpers/renderer'
 Controls = require 'helpers/controls'
 Camera   = require 'helpers/camera'
+Lights   = require 'helpers/lighting'
 Scene    = require 'helpers/scene'
 View     = require 'views/index'
 
@@ -16,24 +17,7 @@ class APP
       Scene.add new THREE.GridHelper 50, 10
       Scene.add new THREE.AxisHelper 60
 
-    light = new THREE.SpotLight 0xffffff
-    light.position.set 60, 100, 60
-
-    Scene.add light
-
-    light = new THREE.SpotLight 0xffffff, 0
-    light.position.set 0, 100, 0
-
-    light.castShadow = true
-    light.shadowDarkness = 0.25
-    light.shadowCameraFov = 25
-
-    Scene.add light
-
-    light = new THREE.PointLight 0xffffff
-    light.position.set 0, 0, 0
-
-    Scene.add light
+    Scene.add light for light in object for key, object of Lights
 
     @view = new View
 

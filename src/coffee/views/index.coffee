@@ -12,24 +12,8 @@ module.exports = class Index
 
   constructor: ->
 
-    geometry = new THREE.SphereGeometry 20, 64, 64
-
-    materialOptions =
-      color        : 0xffffff
-      wireframe    : false
-      side         : THREE.DoubleSide
-      vertexColors : THREE.FaceColors
-
-    material = new THREE.MeshLambertMaterial materialOptions
-
-    @icosahedron = new THREE.Mesh geometry, material
-
-    @icosahedron.castShadow = true
-    @icosahedron.receiveShadow = true
-
-    Scene.add @icosahedron
-
     @innerSphere()
+    @outerSphere()
     @seperateGeometry()
     @getFaces()
     @getNewPosition()
@@ -40,17 +24,40 @@ module.exports = class Index
 
   innerSphere: ->
 
-    geometry     = new THREE.SphereGeometry 19.9, 32, 32
-    material     = new THREE.MeshBasicMaterial color: 0xffffff
-    @innerSphere = new THREE.Mesh geometry, material
+    materialOptions =
+      uniforms       : {}
+      vertexShader   : $('#vertexShader').text()
+      fragmentShader : $('#fragmentShader').text()
+      side           : THREE.BackSide
+      blending       : THREE.AdditiveBlending
+      transparent    : true
 
-    @innerSphere.receiveShadow = true
+    geometry  = new THREE.SphereGeometry 18, 32, 32
+    material  = new THREE.ShaderMaterial materialOptions
+    @glowBall = new THREE.Mesh geometry, material
+    
+    Scene.add @glowBall
 
-    Scene.add @innerSphere
+  outerSphere: ->
+
+    materialOptions =
+      color        : 0xffffff
+      wireframe    : false
+      side         : THREE.DoubleSide
+      vertexColors : THREE.FaceColors
+
+    geometry    = new THREE.SphereGeometry 20, 8, 8
+    material    = new THREE.MeshLambertMaterial materialOptions
+    @mainSphere = new THREE.Mesh geometry, material
+
+    @mainSphere.castShadow    = true
+    @mainSphere.receiveShadow = true
+
+    Scene.add @mainSphere
 
   seperateGeometry: ->
 
-    geometry = @icosahedron.geometry
+    geometry = @mainSphere.geometry
     vertices = []
 
     for face, i in geometry.faces
@@ -77,21 +84,15 @@ module.exports = class Index
 
   getFaces: ->
 
-    for vertex, i in @icosahedron.geometry.vertices
+    for vertex, i in @mainSphere.geometry.vertices
 
       if i % 3 is 0
 
-        @faces.push faceGroup unless i is 0
+        @faces.push arr unless i is 0
 
-        faceGroup = []
+        arr = []
 
-      if i is 57
-
-        faceGroup = []
-
-        @faces.push faceGroup
-
-      faceGroup.push vertex
+      arr.push vertex
 
   getNewPosition: ->
 
@@ -112,7 +113,7 @@ module.exports = class Index
 
   colorFaces: ->
 
-    for face in @icosahedron.geometry.faces
+    for face in @mainSphere.geometry.faces
 
       color = RandomColor( hue: 'red', luminosity: 'bright' ).split('#')[1]
 
@@ -122,29 +123,30 @@ module.exports = class Index
 
     for face, i in @faces
 
-      if i % 5 is 0
+      for vertex in face
+          
+        x = vertex.x
+        y = vertex.y
+        z = vertex.z
 
-        for vertex in face
-            
-          x = vertex.x
-          y = vertex.y
-          z = vertex.z
+        params =
+          x      : vertex.x + face.diff.x * 4
+          y      : vertex.y + face.diff.y * 4
+          z      : vertex.z + face.diff.z * 4
+          delay  : i * 0.005
+          ease   : Power1.easeInOut
+          repeat : -1
+          yoyo   : true
 
-          params =
-            x      : vertex.x + face.diff.x * 4
-            y      : vertex.y + face.diff.y * 4
-            z      : vertex.z + face.diff.z * 4
-            delay  : i * 0.001
-            ease   : Power1.easeInOut
-            # repeat : 4
-            # yoyo   : true
-
-          TweenMax.to vertex, 0.5, params
+        TweenMax.to vertex, 0.5, params
 
   update: ( time ) =>
 
-    @icosahedron.rotation.y -= 0.005
+    @mainSphere.rotation.y -= 0.01
 
-    @icosahedron.geometry.verticesNeedUpdate = true
-    @icosahedron.geometry.colorsNeedUpdate   = true
+    @mainSphere.geometry.verticesNeedUpdate = true
+    @mainSphere.geometry.colorsNeedUpdate   = true
       
+    @mainSphere.scale.x = 0.05 * Math.sin( time / 500 ) + 1.05
+    @mainSphere.scale.y = 0.05 * Math.sin( time / 500 ) + 1.05
+    @mainSphere.scale.z = 0.05 * Math.sin( time / 500 ) + 1.05

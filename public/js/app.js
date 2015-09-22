@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var APP, Camera, Controls, RAF, Renderer, Scene, Settings, View, win,
+	var APP, Camera, Controls, Lights, RAF, Renderer, Scene, Settings, View, win,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 	Settings = __webpack_require__(1);
@@ -59,31 +59,28 @@
 
 	Camera = __webpack_require__(7);
 
-	Scene = __webpack_require__(8);
+	Lights = __webpack_require__(8);
 
-	View = __webpack_require__(9);
+	Scene = __webpack_require__(9);
+
+	View = __webpack_require__(10);
 
 	APP = (function() {
 	  function APP() {
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
-	    var light;
+	    var key, light, object, _i, _len;
 	    if (Settings.debug) {
 	      Scene.add(new THREE.GridHelper(50, 10));
 	      Scene.add(new THREE.AxisHelper(60));
 	    }
-	    light = new THREE.SpotLight(0xffffff);
-	    light.position.set(60, 100, 60);
-	    Scene.add(light);
-	    light = new THREE.SpotLight(0xffffff, 0);
-	    light.position.set(0, 100, 0);
-	    light.castShadow = true;
-	    light.shadowDarkness = 0.25;
-	    light.shadowCameraFov = 25;
-	    Scene.add(light);
-	    light = new THREE.PointLight(0xffffff);
-	    light.position.set(0, 0, 0);
-	    Scene.add(light);
+	    for (key in Lights) {
+	      object = Lights[key];
+	      for (_i = 0, _len = object.length; _i < _len; _i++) {
+	        light = object[_i];
+	        Scene.add(light);
+	      }
+	    }
 	    this.view = new View;
 	    RAF.on('tick', this.update);
 	    win.on('resize', this.resize);
@@ -379,7 +376,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(60, 50, 60);
+	camera.position.set(60, 60, 60);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -388,6 +385,38 @@
 
 /***/ },
 /* 8 */
+/***/ function(module, exports) {
+
+	var lights, pointLight1, spotLight1, spotLight2;
+
+	spotLight1 = new THREE.SpotLight(0xffffff);
+
+	spotLight1.position.set(60, 100, 60);
+
+	spotLight2 = new THREE.SpotLight(0xffffff, 0);
+
+	spotLight2.position.set(0, 100, 0);
+
+	spotLight2.castShadow = true;
+
+	spotLight2.shadowDarkness = 0.2;
+
+	spotLight2.shadowCameraFov = 25;
+
+	pointLight1 = new THREE.PointLight(0xffffff);
+
+	pointLight1.position.set(0, 0, 0);
+
+	lights = {
+	  spotLights: [spotLight1, spotLight2],
+	  pointLights: [pointLight1]
+	};
+
+	module.exports = lights;
+
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Settings;
@@ -402,7 +431,7 @@
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Camera, Index, RAF, RandomColor, Renderer, Scene, Settings, win,
@@ -414,33 +443,21 @@
 
 	RAF = __webpack_require__(4);
 
-	Scene = __webpack_require__(8);
+	Scene = __webpack_require__(9);
 
 	Camera = __webpack_require__(7);
 
 	Renderer = __webpack_require__(5);
 
-	RandomColor = __webpack_require__(10);
+	RandomColor = __webpack_require__(11);
 
 	module.exports = Index = (function() {
 	  Index.prototype.faces = [];
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    var geometry, material, materialOptions;
-	    geometry = new THREE.SphereGeometry(20, 64, 64);
-	    materialOptions = {
-	      color: 0xffffff,
-	      wireframe: false,
-	      side: THREE.DoubleSide,
-	      vertexColors: THREE.FaceColors
-	    };
-	    material = new THREE.MeshLambertMaterial(materialOptions);
-	    this.icosahedron = new THREE.Mesh(geometry, material);
-	    this.icosahedron.castShadow = true;
-	    this.icosahedron.receiveShadow = true;
-	    Scene.add(this.icosahedron);
 	    this.innerSphere();
+	    this.outerSphere();
 	    this.seperateGeometry();
 	    this.getFaces();
 	    this.getNewPosition();
@@ -450,19 +467,40 @@
 	  }
 
 	  Index.prototype.innerSphere = function() {
-	    var geometry, material;
-	    geometry = new THREE.SphereGeometry(19.9, 32, 32);
-	    material = new THREE.MeshBasicMaterial({
-	      color: 0xffffff
-	    });
-	    this.innerSphere = new THREE.Mesh(geometry, material);
-	    this.innerSphere.receiveShadow = true;
-	    return Scene.add(this.innerSphere);
+	    var geometry, material, materialOptions;
+	    materialOptions = {
+	      uniforms: {},
+	      vertexShader: $('#vertexShader').text(),
+	      fragmentShader: $('#fragmentShader').text(),
+	      side: THREE.BackSide,
+	      blending: THREE.AdditiveBlending,
+	      transparent: true
+	    };
+	    geometry = new THREE.SphereGeometry(18, 32, 32);
+	    material = new THREE.ShaderMaterial(materialOptions);
+	    this.glowBall = new THREE.Mesh(geometry, material);
+	    return Scene.add(this.glowBall);
+	  };
+
+	  Index.prototype.outerSphere = function() {
+	    var geometry, material, materialOptions;
+	    materialOptions = {
+	      color: 0xffffff,
+	      wireframe: false,
+	      side: THREE.DoubleSide,
+	      vertexColors: THREE.FaceColors
+	    };
+	    geometry = new THREE.SphereGeometry(20, 8, 8);
+	    material = new THREE.MeshLambertMaterial(materialOptions);
+	    this.mainSphere = new THREE.Mesh(geometry, material);
+	    this.mainSphere.castShadow = true;
+	    this.mainSphere.receiveShadow = true;
+	    return Scene.add(this.mainSphere);
 	  };
 
 	  Index.prototype.seperateGeometry = function() {
 	    var a, b, c, face, geometry, i, n, va, vb, vc, vertices, _i, _len, _ref;
-	    geometry = this.icosahedron.geometry;
+	    geometry = this.mainSphere.geometry;
 	    vertices = [];
 	    _ref = geometry.faces;
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
@@ -485,22 +523,18 @@
 	  };
 
 	  Index.prototype.getFaces = function() {
-	    var faceGroup, i, vertex, _i, _len, _ref, _results;
-	    _ref = this.icosahedron.geometry.vertices;
+	    var arr, i, vertex, _i, _len, _ref, _results;
+	    _ref = this.mainSphere.geometry.vertices;
 	    _results = [];
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      vertex = _ref[i];
 	      if (i % 3 === 0) {
 	        if (i !== 0) {
-	          this.faces.push(faceGroup);
+	          this.faces.push(arr);
 	        }
-	        faceGroup = [];
+	        arr = [];
 	      }
-	      if (i === 57) {
-	        faceGroup = [];
-	        this.faces.push(faceGroup);
-	      }
-	      _results.push(faceGroup.push(vertex));
+	      _results.push(arr.push(vertex));
 	    }
 	    return _results;
 	  };
@@ -526,7 +560,7 @@
 
 	  Index.prototype.colorFaces = function() {
 	    var color, face, _i, _len, _ref, _results;
-	    _ref = this.icosahedron.geometry.faces;
+	    _ref = this.mainSphere.geometry.faces;
 	    _results = [];
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
 	      face = _ref[_i];
@@ -545,37 +579,38 @@
 	    _results = [];
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      face = _ref[i];
-	      if (i % 5 === 0) {
-	        _results.push((function() {
-	          var _j, _len1, _results1;
-	          _results1 = [];
-	          for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
-	            vertex = face[_j];
-	            x = vertex.x;
-	            y = vertex.y;
-	            z = vertex.z;
-	            params = {
-	              x: vertex.x + face.diff.x * 4,
-	              y: vertex.y + face.diff.y * 4,
-	              z: vertex.z + face.diff.z * 4,
-	              delay: i * 0.001,
-	              ease: Power1.easeInOut
-	            };
-	            _results1.push(TweenMax.to(vertex, 0.5, params));
-	          }
-	          return _results1;
-	        })());
-	      } else {
-	        _results.push(void 0);
-	      }
+	      _results.push((function() {
+	        var _j, _len1, _results1;
+	        _results1 = [];
+	        for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
+	          vertex = face[_j];
+	          x = vertex.x;
+	          y = vertex.y;
+	          z = vertex.z;
+	          params = {
+	            x: vertex.x + face.diff.x * 4,
+	            y: vertex.y + face.diff.y * 4,
+	            z: vertex.z + face.diff.z * 4,
+	            delay: i * 0.005,
+	            ease: Power1.easeInOut,
+	            repeat: -1,
+	            yoyo: true
+	          };
+	          _results1.push(TweenMax.to(vertex, 0.5, params));
+	        }
+	        return _results1;
+	      })());
 	    }
 	    return _results;
 	  };
 
 	  Index.prototype.update = function(time) {
-	    this.icosahedron.rotation.y -= 0.005;
-	    this.icosahedron.geometry.verticesNeedUpdate = true;
-	    return this.icosahedron.geometry.colorsNeedUpdate = true;
+	    this.mainSphere.rotation.y -= 0.01;
+	    this.mainSphere.geometry.verticesNeedUpdate = true;
+	    this.mainSphere.geometry.colorsNeedUpdate = true;
+	    this.mainSphere.scale.x = 0.05 * Math.sin(time / 500) + 1.05;
+	    this.mainSphere.scale.y = 0.05 * Math.sin(time / 500) + 1.05;
+	    return this.mainSphere.scale.z = 0.05 * Math.sin(time / 500) + 1.05;
 	  };
 
 	  return Index;
@@ -584,7 +619,7 @@
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// randomColor by David Merfield under the MIT license
