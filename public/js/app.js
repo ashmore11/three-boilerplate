@@ -434,7 +434,7 @@
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Camera, Index, RAF, RandomColor, Renderer, Scene, Settings, win,
+	var Camera, Index, Mouse, RAF, RandomColor, Renderer, Scene, Settings, win,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 	win = __webpack_require__(2);
@@ -451,6 +451,8 @@
 
 	RandomColor = __webpack_require__(11);
 
+	Mouse = __webpack_require__(12);
+
 	module.exports = Index = (function() {
 	  Index.prototype.faces = [];
 
@@ -463,6 +465,10 @@
 	    this.getNewPosition();
 	    this.colorFaces();
 	    this.tweenFaces();
+	    this.groupedObjects = new THREE.Object3D;
+	    this.groupedObjects.add(this.glowBall);
+	    this.groupedObjects.add(this.mainSphere);
+	    Scene.add(this.groupedObjects);
 	    RAF.on('tick', this.update);
 	  }
 
@@ -478,8 +484,7 @@
 	    };
 	    geometry = new THREE.SphereGeometry(18, 32, 32);
 	    material = new THREE.ShaderMaterial(materialOptions);
-	    this.glowBall = new THREE.Mesh(geometry, material);
-	    return Scene.add(this.glowBall);
+	    return this.glowBall = new THREE.Mesh(geometry, material);
 	  };
 
 	  Index.prototype.outerSphere = function() {
@@ -494,8 +499,7 @@
 	    material = new THREE.MeshLambertMaterial(materialOptions);
 	    this.mainSphere = new THREE.Mesh(geometry, material);
 	    this.mainSphere.castShadow = true;
-	    this.mainSphere.receiveShadow = true;
-	    return Scene.add(this.mainSphere);
+	    return this.mainSphere.receiveShadow = true;
 	  };
 
 	  Index.prototype.seperateGeometry = function() {
@@ -1014,6 +1018,41 @@
 
 	  return randomColor;
 	}));
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Mouse, happens,
+	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+	happens = __webpack_require__(3);
+
+	Mouse = (function() {
+	  Mouse.prototype.doc = $(document);
+
+	  Mouse.prototype.x = 0;
+
+	  Mouse.prototype.y = 0;
+
+	  function Mouse() {
+	    this.mousemove = __bind(this.mousemove, this);
+	    happens(this);
+	    this.doc.on('mousemove', this.mousemove);
+	  }
+
+	  Mouse.prototype.mousemove = function(event) {
+	    this.x = event.pageX - ($(window).width() / 2);
+	    this.y = event.pageY - ($(window).height() / 2);
+	    return this.emit('move');
+	  };
+
+	  return Mouse;
+
+	})();
+
+	module.exports = new Mouse;
 
 
 /***/ }

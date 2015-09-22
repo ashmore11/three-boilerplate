@@ -5,6 +5,7 @@ Scene       = require 'helpers/scene'
 Camera      = require 'helpers/camera'
 Renderer    = require 'helpers/renderer'
 RandomColor = require 'randomcolor'
+Mouse       = require 'utils/mouse'
 
 module.exports = class Index
 
@@ -19,6 +20,13 @@ module.exports = class Index
     @getNewPosition()
     @colorFaces()
     @tweenFaces()
+
+    @groupedObjects = new THREE.Object3D
+
+    @groupedObjects.add @glowBall
+    @groupedObjects.add @mainSphere
+
+    Scene.add @groupedObjects
 
     RAF.on 'tick', @update
 
@@ -35,8 +43,6 @@ module.exports = class Index
     geometry  = new THREE.SphereGeometry 18, 32, 32
     material  = new THREE.ShaderMaterial materialOptions
     @glowBall = new THREE.Mesh geometry, material
-    
-    Scene.add @glowBall
 
   outerSphere: ->
 
@@ -52,8 +58,6 @@ module.exports = class Index
 
     @mainSphere.castShadow    = true
     @mainSphere.receiveShadow = true
-
-    Scene.add @mainSphere
 
   seperateGeometry: ->
 
