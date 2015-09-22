@@ -16,8 +16,17 @@ class APP
       Scene.add new THREE.GridHelper 50, 10
       Scene.add new THREE.AxisHelper 60
 
-    light = new THREE.SpotLight 0x555555
+    light = new THREE.SpotLight 0xffffff
+    light.position.set 60, 100, 60
+
+    Scene.add light
+
+    light = new THREE.SpotLight 0xffffff, 0
     light.position.set 0, 100, 0
+
+    light.castShadow = true
+    light.shadowDarkness = 0.25
+    light.shadowCameraFov = 25
 
     Scene.add light
 
@@ -33,12 +42,12 @@ class APP
 
   update: =>
 
-    # Renderer.setViewport 0, 0, win.width, win.height
-    # Renderer.setScissor  0, 0, win.width, win.height
+    Renderer.setViewport 0, 0, win.width, win.height
+    Renderer.setScissor  0, 0, win.width, win.height
 
-    # Renderer.enableScissorTest true
+    Renderer.enableScissorTest true
 
-    # Renderer.render Scene, Camera
+    Renderer.render Scene, Camera
 
     Camera.updateProjectionMatrix()
 

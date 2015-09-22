@@ -72,8 +72,14 @@
 	      Scene.add(new THREE.GridHelper(50, 10));
 	      Scene.add(new THREE.AxisHelper(60));
 	    }
-	    light = new THREE.SpotLight(0x555555);
+	    light = new THREE.SpotLight(0xffffff);
+	    light.position.set(60, 100, 60);
+	    Scene.add(light);
+	    light = new THREE.SpotLight(0xffffff, 0);
 	    light.position.set(0, 100, 0);
+	    light.castShadow = true;
+	    light.shadowDarkness = 0.25;
+	    light.shadowCameraFov = 25;
 	    Scene.add(light);
 	    light = new THREE.PointLight(0xffffff);
 	    light.position.set(0, 0, 0);
@@ -84,6 +90,10 @@
 	  }
 
 	  APP.prototype.update = function() {
+	    Renderer.setViewport(0, 0, win.width, win.height);
+	    Renderer.setScissor(0, 0, win.width, win.height);
+	    Renderer.enableScissorTest(true);
+	    Renderer.render(Scene, Camera);
 	    Camera.updateProjectionMatrix();
 	    return Controls.update();
 	  };
@@ -325,6 +335,8 @@
 
 	renderer.shadowMapEnabled = true;
 
+	renderer.shadowMapSoft = true;
+
 	$('main').append(renderer.domElement);
 
 	module.exports = renderer;
@@ -367,7 +379,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(60, 40, 60);
+	camera.position.set(60, 50, 60);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -411,24 +423,12 @@
 	RandomColor = __webpack_require__(10);
 
 	module.exports = Index = (function() {
-	  Index.prototype.avgVertexNormals = [];
-
 	  Index.prototype.faces = [];
-
-	  Index.prototype.postprocessing = {
-	    enabled: true
-	  };
-
-	  Index.prototype.sunPosition = new THREE.Vector3(0, 0, 0);
-
-	  Index.prototype.screenSpacePosition = new THREE.Vector3;
-
-	  Index.prototype.materialDepth = new THREE.MeshDepthMaterial;
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
 	    var geometry, material, materialOptions;
-	    geometry = new THREE.IcosahedronGeometry(20, 0);
+	    geometry = new THREE.SphereGeometry(20, 64, 64);
 	    materialOptions = {
 	      color: 0xffffff,
 	      wireframe: false,
@@ -437,24 +437,27 @@
 	    };
 	    material = new THREE.MeshLambertMaterial(materialOptions);
 	    this.icosahedron = new THREE.Mesh(geometry, material);
+	    this.icosahedron.castShadow = true;
+	    this.icosahedron.receiveShadow = true;
 	    Scene.add(this.icosahedron);
 	    this.innerSphere();
 	    this.seperateGeometry();
 	    this.getFaces();
 	    this.getNewPosition();
 	    this.colorFaces();
-	    this.initPostprocessing();
+	    this.tweenFaces();
 	    RAF.on('tick', this.update);
 	  }
 
 	  Index.prototype.innerSphere = function() {
-	    var geometry, material, mesh;
-	    geometry = new THREE.SphereGeometry(15, 64, 64);
+	    var geometry, material;
+	    geometry = new THREE.SphereGeometry(19.9, 32, 32);
 	    material = new THREE.MeshBasicMaterial({
 	      color: 0xffffff
 	    });
-	    mesh = new THREE.Mesh(geometry, material);
-	    return Scene.add(mesh);
+	    this.innerSphere = new THREE.Mesh(geometry, material);
+	    this.innerSphere.receiveShadow = true;
+	    return Scene.add(this.innerSphere);
 	  };
 
 	  Index.prototype.seperateGeometry = function() {
@@ -528,101 +531,51 @@
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
 	      face = _ref[_i];
 	      color = RandomColor({
-	        hue: 'monochrome'
+	        hue: 'red',
+	        luminosity: 'bright'
 	      }).split('#')[1];
 	      _results.push(face.color.setHex("0x" + color));
 	    }
 	    return _results;
 	  };
 
-	  Index.prototype.initPostprocessing = function() {
-	    var godraysCombineShader, godraysGenShader, h, pars, w;
-	    this.postprocessing.scene = new THREE.Scene;
-	    this.postprocessing.camera = new THREE.OrthographicCamera(win.width / -2, win.width / 2, win.height / 2, win.height / -2);
-	    this.postprocessing.camera.position.z = 100;
-	    this.postprocessing.scene.add(this.postprocessing.camera);
-	    pars = {
-	      minFilter: THREE.LinearFilter,
-	      magFilter: THREE.LinearFilter,
-	      format: THREE.RGBFormat
-	    };
-	    this.postprocessing.rtTextureColors = new THREE.WebGLRenderTarget(win.width, win.height, pars);
-	    this.postprocessing.rtTextureDepth = new THREE.WebGLRenderTarget(win.width, win.height, pars);
-	    w = win.width / 4;
-	    h = win.height / 4;
-	    this.postprocessing.rtTextureGodRays1 = new THREE.WebGLRenderTarget(w, h, pars);
-	    this.postprocessing.rtTextureGodRays2 = new THREE.WebGLRenderTarget(w, h, pars);
-	    godraysGenShader = THREE.ShaderGodRays["godrays_generate"];
-	    this.postprocessing.godrayGenUniforms = THREE.UniformsUtils.clone(godraysGenShader.uniforms);
-	    this.postprocessing.materialGodraysGenerate = new THREE.ShaderMaterial({
-	      uniforms: this.postprocessing.godrayGenUniforms,
-	      vertexShader: godraysGenShader.vertexShader,
-	      fragmentShader: godraysGenShader.fragmentShader
-	    });
-	    godraysCombineShader = THREE.ShaderGodRays["godrays_combine"];
-	    this.postprocessing.godrayCombineUniforms = THREE.UniformsUtils.clone(godraysCombineShader.uniforms);
-	    this.postprocessing.materialGodraysCombine = new THREE.ShaderMaterial({
-	      uniforms: this.postprocessing.godrayCombineUniforms,
-	      vertexShader: godraysCombineShader.vertexShader,
-	      fragmentShader: godraysCombineShader.fragmentShader
-	    });
-	    this.postprocessing.godrayCombineUniforms.fGodRayIntensity.value = 0.5;
-	    this.postprocessing.quad = new THREE.Mesh(new THREE.PlaneBufferGeometry(win.width, win.height), this.postprocessing.materialGodraysGenerate);
-	    this.postprocessing.quad.position.z = 0;
-	    return this.postprocessing.scene.add(this.postprocessing.quad);
+	  Index.prototype.tweenFaces = function() {
+	    var face, i, params, vertex, x, y, z, _i, _len, _ref, _results;
+	    _ref = this.faces;
+	    _results = [];
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      face = _ref[i];
+	      if (i % 5 === 0) {
+	        _results.push((function() {
+	          var _j, _len1, _results1;
+	          _results1 = [];
+	          for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
+	            vertex = face[_j];
+	            x = vertex.x;
+	            y = vertex.y;
+	            z = vertex.z;
+	            params = {
+	              x: vertex.x + face.diff.x * 4,
+	              y: vertex.y + face.diff.y * 4,
+	              z: vertex.z + face.diff.z * 4,
+	              delay: i * 0.001,
+	              ease: Power1.easeInOut
+	            };
+	            _results1.push(TweenMax.to(vertex, 0.5, params));
+	          }
+	          return _results1;
+	        })());
+	      } else {
+	        _results.push(void 0);
+	      }
+	    }
+	    return _results;
 	  };
 
 	  Index.prototype.update = function(time) {
-	    var face, i, vertex, _i, _j, _len, _len1, _ref;
-	    this.icosahedron.rotation.y += 0.0075;
-	    _ref = this.faces;
-	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-	      face = _ref[i];
-	      for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
-	        vertex = face[_j];
-	        vertex.x += (face.diff.x * 0.01) * Math.sin(time / 500);
-	        vertex.y += (face.diff.y * 0.01) * Math.sin(time / 500);
-	        vertex.z += (face.diff.z * 0.01) * Math.sin(time / 500);
-	      }
-	    }
+	    this.icosahedron.rotation.y -= 0.005;
 	    this.icosahedron.geometry.verticesNeedUpdate = true;
-	    this.icosahedron.geometry.colorsNeedUpdate = true;
-	    if (this.postprocessing.enabled) {
-	      return this.postProcessUpdate();
-	    } else {
-	      Renderer.setViewport(0, 0, win.width, win.height);
-	      Renderer.setScissor(0, 0, win.width, win.height);
-	      Renderer.enableScissorTest(true);
-	      return Renderer.render(Scene, Camera);
-	    }
-	  };
-
-	  Index.prototype.postProcessUpdate = function() {
-	    var TAPS_PER_PASS, filterLen, pass, stepLen;
-	    Renderer.render(Scene, Camera, this.postprocessing.rtTextureColors);
-	    Renderer.render(Scene, Camera, this.postprocessing.rtTextureDepth, true);
-	    filterLen = 1;
-	    TAPS_PER_PASS = 6;
-	    pass = 1;
-	    stepLen = filterLen * Math.pow(TAPS_PER_PASS, -pass);
-	    this.postprocessing.godrayGenUniforms["fStepSize"].value = stepLen;
-	    this.postprocessing.godrayGenUniforms["tInput"].value = this.postprocessing.rtTextureDepth;
-	    this.postprocessing.scene.overrideMaterial = this.postprocessing.materialGodraysGenerate;
-	    Renderer.render(this.postprocessing.scene, this.postprocessing.camera, this.postprocessing.rtTextureGodRays2);
-	    pass = 2;
-	    stepLen = filterLen * Math.pow(TAPS_PER_PASS, -pass);
-	    this.postprocessing.godrayGenUniforms["fStepSize"].value = stepLen;
-	    this.postprocessing.godrayGenUniforms["tInput"].value = this.postprocessing.rtTextureGodRays2;
-	    Renderer.render(this.postprocessing.scene, this.postprocessing.camera, this.postprocessing.rtTextureGodRays1);
-	    pass = 3;
-	    stepLen = filterLen * Math.pow(TAPS_PER_PASS, -pass);
-	    this.postprocessing.godrayGenUniforms["fStepSize"].value = stepLen;
-	    this.postprocessing.godrayGenUniforms["tInput"].value = this.postprocessing.rtTextureGodRays1;
-	    Renderer.render(this.postprocessing.scene, this.postprocessing.camera, this.postprocessing.rtTextureGodRays2);
-	    this.postprocessing.godrayCombineUniforms["tColors"].value = this.postprocessing.rtTextureColors;
-	    this.postprocessing.godrayCombineUniforms["tGodRays"].value = this.postprocessing.rtTextureGodRays2;
-	    this.postprocessing.scene.overrideMaterial = this.postprocessing.materialGodraysCombine;
-	    return Renderer.render(this.postprocessing.scene, this.postprocessing.camera);
+	    return this.icosahedron.geometry.colorsNeedUpdate = true;
 	  };
 
 	  return Index;
