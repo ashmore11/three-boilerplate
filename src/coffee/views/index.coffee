@@ -16,9 +16,9 @@ module.exports = class Index
     @innerSphere()
     @outerSphere()
     @groupObjects()
-    @seperateGeometry()
+    @explodeGeometry()
     @createFaceArray()
-    @getNewPosition()
+    @getNewVectorPos()
     @colorFaces()
     @tweenFaces()
 
@@ -62,7 +62,7 @@ module.exports = class Index
 
     Scene.add @groupedObjects
 
-  seperateGeometry: ->
+  explodeGeometry: ->
 
     geometry = @mainSphere.geometry
     vertices = []
@@ -101,7 +101,7 @@ module.exports = class Index
 
       arr.push vertex
 
-  getNewPosition: ->
+  getNewVectorPos: ->
 
     for face in @faces
 
@@ -110,7 +110,7 @@ module.exports = class Index
       cz = ( face[0].z + face[1].z + face[2].z ) / 3
 
       center = new THREE.Vector3 cx, cy, cz
-      diff   = center.sub Scene.position
+      diff   = center.sub @mainSphere.position
       length = diff.length()
 
       diff.normalize()
@@ -137,9 +137,9 @@ module.exports = class Index
         z = vertex.z
 
         params =
-          x      : vertex.x + face.diff.x #( Math.random() * 10 )
-          y      : vertex.y + face.diff.y #( Math.random() * 10 )
-          z      : vertex.z + face.diff.z #( Math.random() * 10 )
+          x      : vertex.x + face.diff.x # * Math.random()
+          y      : vertex.y + face.diff.y # * Math.random()
+          z      : vertex.z + face.diff.z # * Math.random()
           delay  : i * 0.005
           ease   : Power1.easeInOut
           repeat : -1
@@ -150,11 +150,6 @@ module.exports = class Index
   update: ( time ) =>
 
     @mainSphere.rotation.y -= 0.01
-    # @mainSphere.rotation.x += 0.01
 
     @mainSphere.geometry.verticesNeedUpdate = true
     @mainSphere.geometry.colorsNeedUpdate   = true
-      
-    # @mainSphere.scale.x = 0.08 * Math.sin( time / 500 ) + 1
-    # @mainSphere.scale.y = 0.08 * Math.sin( time / 500 ) + 1
-    # @mainSphere.scale.z = 0.08 * Math.sin( time / 500 ) + 1
