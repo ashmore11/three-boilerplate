@@ -48,15 +48,25 @@ module.exports = class Index
 
   createNebula: ->
 
-    for i in [0...5]
+    for i in [0...10]
 
       geometry = new THREE.PlaneGeometry 40, 40
-      material = new THREE.MeshNormalMaterial side: THREE.DoubleSide
-      mesh     = new THREE.Mesh geometry, material
+
+      options =
+        map         : THREE.ImageUtils.loadTexture('images/plasma.jpg')
+        blending    : THREE.AdditiveBlending
+        transparent : true
+        side        : THREE.DoubleSide
+      
+      material = new THREE.MeshBasicMaterial options
+
+      mesh = new THREE.Mesh geometry, material
 
       mesh.rotation.x = Math.random() * Math.PI
       mesh.rotation.y = Math.random() * Math.PI
       mesh.rotation.z = Math.random() * Math.PI
+
+      console.log geometry
 
       Scene.add mesh
 
