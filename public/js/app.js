@@ -390,7 +390,7 @@
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Index, RAF, Scene, Settings,
+	var Camera, Index, RAF, Scene, Settings,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 	Settings = __webpack_require__(1);
@@ -398,6 +398,8 @@
 	RAF = __webpack_require__(4);
 
 	Scene = __webpack_require__(8);
+
+	Camera = __webpack_require__(7);
 
 	module.exports = Index = (function() {
 	  Index.prototype.particleCount = 3000;
@@ -435,9 +437,9 @@
 	  };
 
 	  Index.prototype.createNebula = function() {
-	    var geometry, i, material, mesh, options, _i, _results;
-	    _results = [];
-	    for (i = _i = 0; _i < 10; i = ++_i) {
+	    var geometry, i, material, mesh, options, _i;
+	    this.nebula = new THREE.Object3D;
+	    for (i = _i = 0; _i < 1; i = ++_i) {
 	      geometry = new THREE.PlaneGeometry(40, 40);
 	      options = {
 	        map: THREE.ImageUtils.loadTexture('images/plasma.jpg'),
@@ -450,13 +452,24 @@
 	      mesh.rotation.x = Math.random() * Math.PI;
 	      mesh.rotation.y = Math.random() * Math.PI;
 	      mesh.rotation.z = Math.random() * Math.PI;
-	      console.log(geometry);
-	      _results.push(Scene.add(mesh));
+	      this.nebula.add(mesh);
+	    }
+	    console.log(Camera);
+	    return Scene.add(this.nebula);
+	  };
+
+	  Index.prototype.update = function(time) {
+	    var opacity, plane, _i, _len, _ref, _results;
+	    _ref = this.nebula.children;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      plane = _ref[_i];
+	      opacity = Math.cos(plane.geometry.faces[0].normal.dot(Camera.up));
+	      plane.material.opacity = opacity;
+	      _results.push(console.log(opacity));
 	    }
 	    return _results;
 	  };
-
-	  Index.prototype.update = function(time) {};
 
 	  return Index;
 

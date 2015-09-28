@@ -1,6 +1,7 @@
 Settings = require 'settings'
 RAF      = require 'utils/raf'
 Scene    = require 'helpers/scene'
+Camera   = require 'helpers/camera'
 
 module.exports = class Index
 
@@ -48,7 +49,9 @@ module.exports = class Index
 
   createNebula: ->
 
-    for i in [0...10]
+    @nebula = new THREE.Object3D
+
+    for i in [0...1]
 
       geometry = new THREE.PlaneGeometry 40, 40
 
@@ -66,10 +69,21 @@ module.exports = class Index
       mesh.rotation.y = Math.random() * Math.PI
       mesh.rotation.z = Math.random() * Math.PI
 
-      console.log geometry
+      @nebula.add mesh
 
-      Scene.add mesh
+    console.log Camera
+
+    Scene.add @nebula
 
   update: ( time ) =>
 
     # @starfield.rotation.y += 0.001
+
+    for plane in @nebula.children
+
+      opacity = Math.cos plane.geometry.faces[0].normal.dot Camera.up
+
+      plane.material.opacity = opacity
+
+      console.log opacity
+
