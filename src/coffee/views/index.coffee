@@ -68,8 +68,8 @@ module.exports = class Index
       material = new THREE.MeshBasicMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      mesh.rotation.set Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI
-      mesh.position.set Math.random() * 5, Math.random() * 5, Math.random() * 5
+      # mesh.rotation.set Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI
+      # mesh.position.set Math.random() * 5, Math.random() * 5, Math.random() * 5
 
       @nebula.add mesh
 
@@ -80,8 +80,12 @@ module.exports = class Index
     for plane in @nebula.children
 
       v1 = plane.geometry.faces[0].normal
-      v2 = Camera.position.sub( plane.position ).normalize()
+      v2 = Camera.position.clone().sub( plane.position ).normalize()
       a  = v1.dot v2
+
+      if a < 0 then a = a * -1
+
+      plane.material.opacity = a
 
       console.log a
 

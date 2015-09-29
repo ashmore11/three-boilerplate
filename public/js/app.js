@@ -458,8 +458,6 @@
 	      };
 	      material = new THREE.MeshBasicMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-	      mesh.position.set(Math.random() * 5, Math.random() * 5, Math.random() * 5);
 	      this.nebula.add(mesh);
 	    }
 	    return Scene.add(this.nebula);
@@ -472,8 +470,12 @@
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
 	      plane = _ref[_i];
 	      v1 = plane.geometry.faces[0].normal;
-	      v2 = Camera.position.sub(plane.position).normalize();
+	      v2 = Camera.position.clone().sub(plane.position).normalize();
 	      a = v1.dot(v2);
+	      if (a < 0) {
+	        a = a * -1;
+	      }
+	      plane.material.opacity = a;
 	      _results.push(console.log(a));
 	    }
 	    return _results;
