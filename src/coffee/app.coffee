@@ -9,6 +9,11 @@ View     = require 'views/index'
 
 class APP
 
+  camera   : Camera
+  controls : Controls
+  scene    : Scene
+  renderer : Renderer
+
   constructor: ->
 
     if Settings.debug
@@ -42,4 +47,4 @@ class APP
     
     Camera.updateProjectionMatrix()
 
-module.exports = new APP
+window.APP = new APP

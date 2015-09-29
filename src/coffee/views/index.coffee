@@ -9,7 +9,7 @@ module.exports = class Index
 
   constructor: ->
 
-    @createStarfield()
+    # @createStarfield()
     @createNebula()
 
     RAF.on 'tick', @update
@@ -53,37 +53,35 @@ module.exports = class Index
 
     for i in [0...1]
 
-      geometry = new THREE.PlaneGeometry 40, 40
+      geometry = new THREE.PlaneGeometry 40, 40, 1, 1
+
+      texture           = THREE.ImageUtils.loadTexture 'images/plasma.jpg'
+      texture.minFilter = THREE.LinearFilter
 
       options =
-        map         : THREE.ImageUtils.loadTexture('images/plasma.jpg')
+        # map         : texture
         blending    : THREE.AdditiveBlending
         transparent : true
         side        : THREE.DoubleSide
+        wireframe   : true
       
       material = new THREE.MeshBasicMaterial options
+      mesh     = new THREE.Mesh geometry, material
 
-      mesh = new THREE.Mesh geometry, material
-
-      mesh.rotation.x = Math.random() * Math.PI
-      mesh.rotation.y = Math.random() * Math.PI
-      mesh.rotation.z = Math.random() * Math.PI
+      mesh.rotation.set Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI
+      mesh.position.set Math.random() * 5, Math.random() * 5, Math.random() * 5
 
       @nebula.add mesh
-
-    console.log Camera
 
     Scene.add @nebula
 
   update: ( time ) =>
 
-    # @starfield.rotation.y += 0.001
-
     for plane in @nebula.children
 
-      opacity = Math.cos plane.geometry.faces[0].normal.dot Camera.up
+      v1 = plane.geometry.faces[0].normal
+      v2 = Camera.position.sub( plane.position ).normalize()
+      a  = v1.dot v2
 
-      plane.material.opacity = opacity
-
-      console.log opacity
+      console.log a
 

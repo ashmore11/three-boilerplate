@@ -64,6 +64,14 @@
 	View = __webpack_require__(9);
 
 	APP = (function() {
+	  APP.prototype.camera = Camera;
+
+	  APP.prototype.controls = Controls;
+
+	  APP.prototype.scene = Scene;
+
+	  APP.prototype.renderer = Renderer;
+
 	  function APP() {
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
@@ -95,7 +103,7 @@
 
 	})();
 
-	module.exports = new APP;
+	window.APP = new APP;
 
 
 /***/ },
@@ -406,7 +414,6 @@
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    this.createStarfield();
 	    this.createNebula();
 	    RAF.on('tick', this.update);
 	  }
@@ -437,36 +444,37 @@
 	  };
 
 	  Index.prototype.createNebula = function() {
-	    var geometry, i, material, mesh, options, _i;
+	    var geometry, i, material, mesh, options, texture, _i;
 	    this.nebula = new THREE.Object3D;
 	    for (i = _i = 0; _i < 1; i = ++_i) {
-	      geometry = new THREE.PlaneGeometry(40, 40);
+	      geometry = new THREE.PlaneGeometry(40, 40, 1, 1);
+	      texture = THREE.ImageUtils.loadTexture('images/plasma.jpg');
+	      texture.minFilter = THREE.LinearFilter;
 	      options = {
-	        map: THREE.ImageUtils.loadTexture('images/plasma.jpg'),
 	        blending: THREE.AdditiveBlending,
 	        transparent: true,
-	        side: THREE.DoubleSide
+	        side: THREE.DoubleSide,
+	        wireframe: true
 	      };
 	      material = new THREE.MeshBasicMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.x = Math.random() * Math.PI;
-	      mesh.rotation.y = Math.random() * Math.PI;
-	      mesh.rotation.z = Math.random() * Math.PI;
+	      mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+	      mesh.position.set(Math.random() * 5, Math.random() * 5, Math.random() * 5);
 	      this.nebula.add(mesh);
 	    }
-	    console.log(Camera);
 	    return Scene.add(this.nebula);
 	  };
 
 	  Index.prototype.update = function(time) {
-	    var opacity, plane, _i, _len, _ref, _results;
+	    var a, plane, v1, v2, _i, _len, _ref, _results;
 	    _ref = this.nebula.children;
 	    _results = [];
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
 	      plane = _ref[_i];
-	      opacity = Math.cos(plane.geometry.faces[0].normal.dot(Camera.up));
-	      plane.material.opacity = opacity;
-	      _results.push(console.log(opacity));
+	      v1 = plane.geometry.faces[0].normal;
+	      v2 = Camera.position.sub(plane.position).normalize();
+	      a = v1.dot(v2);
+	      _results.push(console.log(a));
 	    }
 	    return _results;
 	  };
