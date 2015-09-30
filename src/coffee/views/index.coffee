@@ -9,7 +9,7 @@ module.exports = class Index
 
   constructor: ->
 
-    # @createStarfield()
+    @createStarfield()
     @createNebula()
 
     RAF.on 'tick', @update
@@ -51,24 +51,31 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
-    for i in [0...1]
+    for i in [0...10]
 
-      geometry = new THREE.PlaneGeometry 40, 40, 1, 1
+      geometry = new THREE.PlaneGeometry 50, 50, 5, 5
 
-      texture           = THREE.ImageUtils.loadTexture 'images/plasma.jpg'
+      images = ['images/plasma.jpg', 'images/plasma2.jpg']
+
+      texture           = THREE.ImageUtils.loadTexture images[Math.floor(Math.random() * 2)]
       texture.minFilter = THREE.LinearFilter
 
       options =
-        # map         : texture
+        map         : texture
         blending    : THREE.AdditiveBlending
         transparent : true
         side        : THREE.DoubleSide
-        wireframe   : true
+        wireframe   : false
+        depthWrite  : false
+        depthTest   : false
       
       material = new THREE.MeshBasicMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      # mesh.rotation.set Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI
+      mesh.matrix = new THREE.Matrix4
+      mesh.matrix.extractRotation mesh.matrixWorld
+
+      mesh.rotation.set Math.random() * 360, Math.random() * 360, Math.random() * 360
       # mesh.position.set Math.random() * 5, Math.random() * 5, Math.random() * 5
 
       @nebula.add mesh
@@ -80,12 +87,11 @@ module.exports = class Index
     for plane in @nebula.children
 
       v1 = plane.geometry.faces[0].normal
+      v1 = v1.clone().applyMatrix4( plane.matrix )
       v2 = Camera.position.clone().sub( plane.position ).normalize()
       a  = v1.dot v2
 
       if a < 0 then a = a * -1
 
       plane.material.opacity = a
-
-      console.log a
 

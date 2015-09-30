@@ -414,6 +414,7 @@
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
+	    this.createStarfield();
 	    this.createNebula();
 	    RAF.on('tick', this.update);
 	  }
@@ -444,20 +445,27 @@
 	  };
 
 	  Index.prototype.createNebula = function() {
-	    var geometry, i, material, mesh, options, texture, _i;
+	    var geometry, i, images, material, mesh, options, texture, _i;
 	    this.nebula = new THREE.Object3D;
-	    for (i = _i = 0; _i < 1; i = ++_i) {
-	      geometry = new THREE.PlaneGeometry(40, 40, 1, 1);
-	      texture = THREE.ImageUtils.loadTexture('images/plasma.jpg');
+	    for (i = _i = 0; _i < 10; i = ++_i) {
+	      geometry = new THREE.PlaneGeometry(50, 50, 5, 5);
+	      images = ['images/plasma.jpg', 'images/plasma2.jpg'];
+	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 2)]);
 	      texture.minFilter = THREE.LinearFilter;
 	      options = {
+	        map: texture,
 	        blending: THREE.AdditiveBlending,
 	        transparent: true,
 	        side: THREE.DoubleSide,
-	        wireframe: true
+	        wireframe: false,
+	        depthWrite: false,
+	        depthTest: false
 	      };
 	      material = new THREE.MeshBasicMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
+	      mesh.matrix = new THREE.Matrix4;
+	      mesh.matrix.extractRotation(mesh.matrixWorld);
+	      mesh.rotation.set(Math.random() * 360, Math.random() * 360, Math.random() * 360);
 	      this.nebula.add(mesh);
 	    }
 	    return Scene.add(this.nebula);
@@ -470,13 +478,13 @@
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
 	      plane = _ref[_i];
 	      v1 = plane.geometry.faces[0].normal;
+	      v1 = v1.clone().applyMatrix4(plane.matrix);
 	      v2 = Camera.position.clone().sub(plane.position).normalize();
 	      a = v1.dot(v2);
 	      if (a < 0) {
 	        a = a * -1;
 	      }
-	      plane.material.opacity = a;
-	      _results.push(console.log(a));
+	      _results.push(plane.material.opacity = a);
 	    }
 	    return _results;
 	  };
