@@ -9,7 +9,7 @@ module.exports = class Index
 
   constructor: ->
 
-    @createStarfield()
+    # @createStarfield()
     @createNebula()
 
     RAF.on 'tick', @update
@@ -33,11 +33,11 @@ module.exports = class Index
 
     for i in [0...@particleCount]
 
-      pX = Math.random() * 500 - 250
-      pY = Math.random() * 500 - 250
-      pZ = Math.random() * 500 - 250
+      x = Math.random() * 500 - 250
+      y = Math.random() * 500 - 250
+      z = Math.random() * 500 - 250
 
-      particle = new THREE.Vector3 pX, pY, pZ
+      particle = new THREE.Vector3 x, y, z
 
       geometry.vertices.push particle
 
@@ -49,15 +49,15 @@ module.exports = class Index
 
   createNebula: ->
 
+    images = ['images/plasma.jpg','images/plasma2.jpg', 'images/plasma3.jpg']
+
     @nebula = new THREE.Object3D
 
     for i in [0...10]
 
-      geometry = new THREE.PlaneGeometry 50, 50, 5, 5
+      geometry = new THREE.PlaneGeometry 100, 100, 1, 1
 
-      images = ['images/plasma.jpg', 'images/plasma2.jpg']
-
-      texture           = THREE.ImageUtils.loadTexture images[Math.floor(Math.random() * 2)]
+      texture           = THREE.ImageUtils.loadTexture images[Math.floor(Math.random() * 3)]
       texture.minFilter = THREE.LinearFilter
 
       options =
@@ -72,11 +72,8 @@ module.exports = class Index
       material = new THREE.MeshBasicMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      mesh.matrix = new THREE.Matrix4
-      mesh.matrix.extractRotation mesh.matrixWorld
-
       mesh.rotation.set Math.random() * 360, Math.random() * 360, Math.random() * 360
-      # mesh.position.set Math.random() * 5, Math.random() * 5, Math.random() * 5
+      # mesh.position.set Math.random() * 10, Math.random() * 10, Math.random() * 10
 
       @nebula.add mesh
 

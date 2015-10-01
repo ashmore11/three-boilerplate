@@ -372,7 +372,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(60, 45, 60);
+	camera.position.set(110, 45, 110);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -414,13 +414,12 @@
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    this.createStarfield();
 	    this.createNebula();
 	    RAF.on('tick', this.update);
 	  }
 
 	  Index.prototype.createStarfield = function() {
-	    var geometry, i, material, options, pX, pY, pZ, particle, particles, _i, _ref;
+	    var geometry, i, material, options, particle, particles, x, y, z, _i, _ref;
 	    this.starfield = new THREE.Object3D;
 	    Scene.add(this.starfield);
 	    geometry = new THREE.Geometry;
@@ -433,10 +432,10 @@
 	    };
 	    material = new THREE.PointCloudMaterial(options);
 	    for (i = _i = 0, _ref = this.particleCount; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-	      pX = Math.random() * 500 - 250;
-	      pY = Math.random() * 500 - 250;
-	      pZ = Math.random() * 500 - 250;
-	      particle = new THREE.Vector3(pX, pY, pZ);
+	      x = Math.random() * 500 - 250;
+	      y = Math.random() * 500 - 250;
+	      z = Math.random() * 500 - 250;
+	      particle = new THREE.Vector3(x, y, z);
 	      geometry.vertices.push(particle);
 	    }
 	    particles = new THREE.PointCloud(geometry, material);
@@ -446,11 +445,11 @@
 
 	  Index.prototype.createNebula = function() {
 	    var geometry, i, images, material, mesh, options, texture, _i;
+	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
 	    this.nebula = new THREE.Object3D;
 	    for (i = _i = 0; _i < 10; i = ++_i) {
-	      geometry = new THREE.PlaneGeometry(50, 50, 5, 5);
-	      images = ['images/plasma.jpg', 'images/plasma2.jpg'];
-	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 2)]);
+	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
+	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 3)]);
 	      texture.minFilter = THREE.LinearFilter;
 	      options = {
 	        map: texture,
@@ -463,8 +462,6 @@
 	      };
 	      material = new THREE.MeshBasicMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.matrix = new THREE.Matrix4;
-	      mesh.matrix.extractRotation(mesh.matrixWorld);
 	      mesh.rotation.set(Math.random() * 360, Math.random() * 360, Math.random() * 360);
 	      this.nebula.add(mesh);
 	    }
