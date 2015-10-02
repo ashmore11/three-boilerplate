@@ -53,7 +53,7 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
-    for i in [0...360]
+    for i in [0...50]
 
       geometry = new THREE.PlaneGeometry 100, 100, 1, 1
 

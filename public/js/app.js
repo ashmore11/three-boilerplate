@@ -447,7 +447,7 @@
 	    var geometry, i, images, material, mesh, options, texture, _i;
 	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
 	    this.nebula = new THREE.Object3D;
-	    for (i = _i = 0; _i < 360; i = ++_i) {
+	    for (i = _i = 0; _i < 50; i = ++_i) {
 	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
 	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 3)]);
 	      texture.minFilter = THREE.LinearFilter;
