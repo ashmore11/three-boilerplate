@@ -53,7 +53,7 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
-    for i in [0...50]
+    for i in [0...10]
 
       geometry = new THREE.PlaneGeometry 100, 100, 1, 1
 
@@ -61,19 +61,19 @@ module.exports = class Index
       texture.minFilter = THREE.LinearFilter
 
       options =
-        # map         : texture
+        map         : texture
         blending    : THREE.AdditiveBlending
         transparent : true
         side        : THREE.DoubleSide
+        wireframe   : false
         depthWrite  : false
         depthTest   : false
-        wireframe   : true
       
-      material = new THREE.MeshNormalMaterial options
+      material = new THREE.MeshBasicMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      # mesh.rotation.set i * 0.01, i * 0.01, ( Math.PI * i ) / 360
-      mesh.rotation.set ( Math.PI * i ) / 360, 0, 0
+      mesh.rotation.set Math.random() * 360, Math.random() * 360, Math.random() * 360
+      # mesh.position.set Math.random() * 10, Math.random() * 10, Math.random() * 10
 
       @nebula.add mesh
 
@@ -91,7 +91,4 @@ module.exports = class Index
       if a < 0 then a = a * -1
 
       plane.material.opacity = a
-
-      # plane.rotation.x += 0.01
-      # plane.rotation.y += 0.01
 
