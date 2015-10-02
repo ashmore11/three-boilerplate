@@ -9,7 +9,7 @@ module.exports = class Index
 
   constructor: ->
 
-    # @createStarfield()
+    @createStarfield()
     @createNebula()
 
     RAF.on 'tick', @update
@@ -49,20 +49,13 @@ module.exports = class Index
 
   createNebula: ->
 
-    images = ['images/plasma.jpg','images/plasma2.jpg', 'images/plasma3.jpg']
-
     @nebula = new THREE.Object3D
 
-    for i in [0...50]
+    for i in [0...500]
 
       geometry = new THREE.PlaneGeometry 100, 100, 1, 1
 
-      texture           = THREE.ImageUtils.loadTexture images[Math.floor(Math.random() * 3)]
-      texture.minFilter = THREE.LinearFilter
-
       options =
-        # map         : texture
-        blending    : THREE.AdditiveBlending
         transparent : true
         side        : THREE.DoubleSide
         depthWrite  : false
@@ -72,8 +65,9 @@ module.exports = class Index
       material = new THREE.MeshNormalMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      # mesh.rotation.set i * 0.01, i * 0.01, ( Math.PI * i ) / 360
-      mesh.rotation.set ( Math.PI * i ) / 360, 0, 0
+      mesh.rotation.x = i * ( Math.PI * 2 ) / 50
+      # mesh.rotation.y = i * ( Math.PI * 2 ) / 50
+      # mesh.rotation.z = i * ( Math.PI * 2 ) / 50
 
       @nebula.add mesh
 

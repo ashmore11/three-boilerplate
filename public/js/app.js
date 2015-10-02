@@ -318,7 +318,7 @@
 
 	renderer.setSize(win.width, win.height);
 
-	renderer.setClearColor("#ffffff");
+	renderer.setClearColor(0x000000);
 
 	renderer.shadowMapEnabled = true;
 
@@ -364,7 +364,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(60, 45, 60);
+	camera.position.set(110, 45, 110);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -406,6 +406,7 @@
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
+	    this.createStarfield();
 	    this.createNebula();
 	    RAF.on('tick', this.update);
 	  }
@@ -436,15 +437,11 @@
 	  };
 
 	  Index.prototype.createNebula = function() {
-	    var geometry, i, images, material, mesh, options, texture, _i;
-	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
+	    var geometry, i, material, mesh, options, _i;
 	    this.nebula = new THREE.Object3D;
-	    for (i = _i = 0; _i < 50; i = ++_i) {
+	    for (i = _i = 0; _i < 500; i = ++_i) {
 	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
-	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 3)]);
-	      texture.minFilter = THREE.LinearFilter;
 	      options = {
-	        blending: THREE.AdditiveBlending,
 	        transparent: true,
 	        side: THREE.DoubleSide,
 	        depthWrite: false,
@@ -453,7 +450,7 @@
 	      };
 	      material = new THREE.MeshNormalMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.set((Math.PI * i) / 360, 0, 0);
+	      mesh.rotation.x = i * (Math.PI * 2) / 50;
 	      this.nebula.add(mesh);
 	    }
 	    return Scene.add(this.nebula);
