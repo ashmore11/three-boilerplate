@@ -447,22 +447,21 @@
 	    var geometry, i, images, material, mesh, options, texture, _i;
 	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
 	    this.nebula = new THREE.Object3D;
-	    for (i = _i = 0; _i < 10; i = ++_i) {
+	    for (i = _i = 0; _i < 360; i = ++_i) {
 	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
 	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 3)]);
 	      texture.minFilter = THREE.LinearFilter;
 	      options = {
-	        map: texture,
 	        blending: THREE.AdditiveBlending,
 	        transparent: true,
 	        side: THREE.DoubleSide,
-	        wireframe: false,
 	        depthWrite: false,
-	        depthTest: false
+	        depthTest: false,
+	        wireframe: true
 	      };
-	      material = new THREE.MeshBasicMaterial(options);
+	      material = new THREE.MeshNormalMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.set(Math.random() * 360, Math.random() * 360, Math.random() * 360);
+	      mesh.rotation.set((Math.PI * i) / 360, 0, 0);
 	      this.nebula.add(mesh);
 	    }
 	    return Scene.add(this.nebula);
