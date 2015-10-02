@@ -13,7 +13,7 @@ class APP
 
     if Settings.debug
 
-      Scene.add new THREE.GridHelper 50, 10
+      Scene.add new THREE.GridHelper 10, 10
       Scene.add new THREE.AxisHelper 60
 
     @view = new View
@@ -32,7 +32,7 @@ class APP
 
     Camera.updateProjectionMatrix()
 
-    Controls.update()
+    Controls.update() if Settings.controls
 
   resize: =>
 

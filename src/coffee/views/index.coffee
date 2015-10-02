@@ -6,10 +6,11 @@ Camera   = require 'helpers/camera'
 module.exports = class Index
 
   particleCount: 3000
+  rotation: 0
 
   constructor: ->
 
-    @createStarfield()
+    # @createStarfield()
     @createNebula()
 
     RAF.on 'tick', @update
@@ -51,7 +52,9 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
-    for i in [0...500]
+    count = 200
+
+    for i in [0...count]
 
       geometry = new THREE.PlaneGeometry 100, 100, 1, 1
 
@@ -65,9 +68,9 @@ module.exports = class Index
       material = new THREE.MeshNormalMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      mesh.rotation.x = i * ( Math.PI * 2 ) / 50
-      # mesh.rotation.y = i * ( Math.PI * 2 ) / 50
-      # mesh.rotation.z = i * ( Math.PI * 2 ) / 50
+      mesh.rotation.x = i * ( Math.PI * 2 ) / count
+      mesh.rotation.y = i * ( Math.PI * 2 ) / count
+      mesh.rotation.z = i * ( Math.PI * 2 ) / count
 
       @nebula.add mesh
 
@@ -86,6 +89,6 @@ module.exports = class Index
 
       plane.material.opacity = a
 
-      # plane.rotation.x += 0.01
+      plane.rotation.x += 0.01
       # plane.rotation.y += 0.01
-
+      # plane.rotation.z += 0.01

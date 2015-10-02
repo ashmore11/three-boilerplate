@@ -68,7 +68,7 @@
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
 	    if (Settings.debug) {
-	      Scene.add(new THREE.GridHelper(50, 10));
+	      Scene.add(new THREE.GridHelper(10, 10));
 	      Scene.add(new THREE.AxisHelper(60));
 	    }
 	    this.view = new View;
@@ -82,7 +82,9 @@
 	    Renderer.enableScissorTest(true);
 	    Renderer.render(Scene, Camera);
 	    Camera.updateProjectionMatrix();
-	    return Controls.update();
+	    if (Settings.controls) {
+	      return Controls.update();
+	    }
 	  };
 
 	  APP.prototype.resize = function() {
@@ -104,7 +106,8 @@
 
 	module.exports = {
 	  debug: false,
-	  fog: true
+	  fog: true,
+	  controls: true
 	};
 
 
@@ -364,7 +367,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(110, 45, 110);
+	camera.position.set(150, 0, 150);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -404,9 +407,10 @@
 	module.exports = Index = (function() {
 	  Index.prototype.particleCount = 3000;
 
+	  Index.prototype.rotation = 0;
+
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    this.createStarfield();
 	    this.createNebula();
 	    RAF.on('tick', this.update);
 	  }
@@ -437,9 +441,10 @@
 	  };
 
 	  Index.prototype.createNebula = function() {
-	    var geometry, i, material, mesh, options, _i;
+	    var count, geometry, i, material, mesh, options, _i;
 	    this.nebula = new THREE.Object3D;
-	    for (i = _i = 0; _i < 500; i = ++_i) {
+	    count = 200;
+	    for (i = _i = 0; 0 <= count ? _i < count : _i > count; i = 0 <= count ? ++_i : --_i) {
 	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
 	      options = {
 	        transparent: true,
@@ -450,7 +455,9 @@
 	      };
 	      material = new THREE.MeshNormalMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.x = i * (Math.PI * 2) / 50;
+	      mesh.rotation.x = i * (Math.PI * 2) / count;
+	      mesh.rotation.y = i * (Math.PI * 2) / count;
+	      mesh.rotation.z = i * (Math.PI * 2) / count;
 	      this.nebula.add(mesh);
 	    }
 	    return Scene.add(this.nebula);
@@ -469,7 +476,8 @@
 	      if (a < 0) {
 	        a = a * -1;
 	      }
-	      _results.push(plane.material.opacity = a);
+	      plane.material.opacity = a;
+	      _results.push(plane.rotation.x += 0.01);
 	    }
 	    return _results;
 	  };
