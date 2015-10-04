@@ -5,62 +5,40 @@ Camera   = require 'helpers/camera'
 
 module.exports = class Index
 
-  particleCount: 3000
-  rotation: 0
+  count: 200
+  rotTweenComplete: true
 
   constructor: ->
 
-    # @createStarfield()
-    @createNebula()
+    @createPlanes()
+    @tweenPlanes()
+    @tweenCamera()
+
+    # setTimeout( =>
+
+    #   @rotTweenComplete = true
+
+    #   @tweenRotation('x')
+
+    # , 1000 )
+
+    $('#trig-rot span').on 'click', ( event ) =>
+
+      @tweenRotation $( event.currentTarget ).data('axis')
 
     RAF.on 'tick', @update
 
-  createStarfield: ->
+  createPlanes: ->
 
-    @starfield = new THREE.Object3D
+    @planes = new THREE.Object3D
 
-    Scene.add @starfield
-
-    geometry = new THREE.Geometry
-
-    options =
-      color       : 0xFFFFFF
-      size        : 2
-      map         : THREE.ImageUtils.loadTexture('images/particle.png')
-      blending    : THREE.AdditiveBlending
-      transparent : true
-
-    material = new THREE.PointCloudMaterial options
-
-    for i in [0...@particleCount]
-
-      x = Math.random() * 500 - 250
-      y = Math.random() * 500 - 250
-      z = Math.random() * 500 - 250
-
-      particle = new THREE.Vector3 x, y, z
-
-      geometry.vertices.push particle
-
-    particles = new THREE.PointCloud geometry, material
-
-    particles.sortParticles = true
-
-    @starfield.add particles
-
-  createNebula: ->
-
-    @nebula = new THREE.Object3D
-
-    count = 200
-
-    for i in [0...count]
+    for i in [0...@count]
 
       geometry = new THREE.PlaneGeometry 100, 100, 1, 1
 
       options =
-        transparent : true
         side        : THREE.DoubleSide
+        transparent : true
         depthWrite  : false
         depthTest   : false
         wireframe   : true
@@ -68,27 +46,78 @@ module.exports = class Index
       material = new THREE.MeshNormalMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      mesh.rotation.x = i * ( Math.PI * 2 ) / count
-      mesh.rotation.y = i * ( Math.PI * 2 ) / count
-      mesh.rotation.z = i * ( Math.PI * 2 ) / count
+      mesh.rotation.x = i * ( Math.PI * 2 ) / @count
 
-      @nebula.add mesh
+      @planes.add mesh
 
-    Scene.add @nebula
+    Scene.add @planes
+
+  tweenPlanes: ->
+
+    for plane, i in @planes.children
+
+      params =
+        x      : 1.3
+        y      : 1.3
+        z      : 1.3
+        ease   : Power1.easeInOut
+        delay  : i * 0.05
+        yoyo   : true
+        repeat : -1
+
+      TweenMax.to plane.scale, 1, params
+
+  tweenCamera: ->
+
+    params =
+      x    : 150
+      z    : 150
+      ease : Power4.easeInOut
+
+    TweenMax.to Camera.position, 2, params
+
+  tweenRotation: ( axis ) ->
+
+    return unless @rotTweenComplete
+
+    @rotTweenComplete = false
+
+    count = 0
+
+    for plane, i in @planes.children
+
+      params =
+        ease      : Power2.easeInOut
+        delay     : i * 0.05
+        yoyo      : true
+        repeat    : 1
+        onComplete: =>
+
+          count++
+
+          @rotTweenComplete = true if count is @count
+
+      params[axis] = i * ( Math.PI * 2 ) / @count
+
+      TweenMax.to plane.rotation, 5, params
 
   update: ( time ) =>
 
-    for plane in @nebula.children
+    for plane in @planes.children
 
-      v1 = plane.geometry.faces[0].normal
-      v1 = v1.clone().applyMatrix4( plane.matrix )
+      normal = plane.geometry.faces[0].normal
+
+      # The vector perpendicular to the plane
+      v1 = normal.clone().applyMatrix4( plane.matrix )
+
+      # The vector from the plane to the camera
       v2 = Camera.position.clone().sub( plane.position ).normalize()
-      a  = v1.dot v2
 
-      if a < 0 then a = a * -1
+      # Cosign of the angle between vector1 and vector2
+      cosA = v1.dot v2
 
-      plane.material.opacity = a
+      # Normalize the value to be between 0 and 1
+      if cosA < 0 then cosA = cosA * -1
 
-      plane.rotation.x += 0.01
-      # plane.rotation.y += 0.01
-      # plane.rotation.z += 0.01
+      # Set the opacity of the material with the result
+      plane.material.opacity = cosA

@@ -5,6 +5,7 @@ Renderer = require 'helpers/renderer'
 Controls = require 'helpers/controls'
 Camera   = require 'helpers/camera'
 Scene    = require 'helpers/scene'
+Lights   = require 'helpers/lighting'
 View     = require 'views/index'
 
 class APP
@@ -15,6 +16,8 @@ class APP
 
       Scene.add new THREE.GridHelper 10, 10
       Scene.add new THREE.AxisHelper 60
+
+    Scene.add light for light in object for key, object of Lights
 
     @view = new View
 

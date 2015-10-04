@@ -4,6 +4,25 @@
 global-reset()
 
 body
+	font-family: 'Roboto Condensed', sans-serif;
 	overflow: hidden
 	padding: 0
 	margin: 0
+	
+#trig-rot
+	absolute: bottom 40px left 50%
+	transform: translateX(-50%)
+	
+	span
+		display: inline-block
+		color: white
+		background: rgba(0,0,0,0.75)
+		border: 1px solid greenyellow
+		padding: 10px 20px
+		margin: 0 2px
+		letter-spacing: 2px
+		cursor: pointer
+		transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 2)
+		
+		&:hover
+			transform: scale(1.05)

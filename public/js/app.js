@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var APP, Camera, Controls, RAF, Renderer, Scene, Settings, View, win,
+	var APP, Camera, Controls, Lights, RAF, Renderer, Scene, Settings, View, win,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 	Settings = __webpack_require__(1);
@@ -61,15 +61,25 @@
 
 	Scene = __webpack_require__(8);
 
-	View = __webpack_require__(9);
+	Lights = __webpack_require__(9);
+
+	View = __webpack_require__(10);
 
 	APP = (function() {
 	  function APP() {
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
+	    var key, light, object, _i, _len;
 	    if (Settings.debug) {
 	      Scene.add(new THREE.GridHelper(10, 10));
 	      Scene.add(new THREE.AxisHelper(60));
+	    }
+	    for (key in Lights) {
+	      object = Lights[key];
+	      for (_i = 0, _len = object.length; _i < _len; _i++) {
+	        light = object[_i];
+	        Scene.add(light);
+	      }
 	    }
 	    this.view = new View;
 	    RAF.on('tick', this.update);
@@ -367,7 +377,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(150, 0, 150);
+	camera.position.set(0.0001, 0, 0.0001);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -391,6 +401,36 @@
 
 /***/ },
 /* 9 */
+/***/ function(module, exports) {
+
+	var pointLight1, spotLight1, spotLight2;
+
+	spotLight1 = new THREE.SpotLight(0xffffff);
+
+	spotLight1.position.set(30, 100, 30);
+
+	spotLight2 = new THREE.SpotLight(0xffffff, 0);
+
+	spotLight2.position.set(0, 100, 0);
+
+	spotLight2.castShadow = true;
+
+	spotLight2.shadowDarkness = 0.2;
+
+	spotLight2.shadowCameraFov = 25;
+
+	pointLight1 = new THREE.PointLight(0xffffff);
+
+	pointLight1.position.set(0, 0, 0);
+
+	module.exports = {
+	  spotLights: [spotLight1, spotLight2],
+	  pointLights: [pointLight1]
+	};
+
+
+/***/ },
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Camera, Index, RAF, Scene, Settings,
@@ -405,79 +445,118 @@
 	Camera = __webpack_require__(7);
 
 	module.exports = Index = (function() {
-	  Index.prototype.particleCount = 3000;
+	  Index.prototype.count = 200;
 
-	  Index.prototype.rotation = 0;
+	  Index.prototype.rotTweenComplete = true;
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    this.createNebula();
+	    this.createPlanes();
+	    this.tweenPlanes();
+	    this.tweenCamera();
+	    $('#trig-rot span').on('click', (function(_this) {
+	      return function(event) {
+	        return _this.tweenRotation($(event.currentTarget).data('axis'));
+	      };
+	    })(this));
 	    RAF.on('tick', this.update);
 	  }
 
-	  Index.prototype.createStarfield = function() {
-	    var geometry, i, material, options, particle, particles, x, y, z, _i, _ref;
-	    this.starfield = new THREE.Object3D;
-	    Scene.add(this.starfield);
-	    geometry = new THREE.Geometry;
-	    options = {
-	      color: 0xFFFFFF,
-	      size: 2,
-	      map: THREE.ImageUtils.loadTexture('images/particle.png'),
-	      blending: THREE.AdditiveBlending,
-	      transparent: true
-	    };
-	    material = new THREE.PointCloudMaterial(options);
-	    for (i = _i = 0, _ref = this.particleCount; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-	      x = Math.random() * 500 - 250;
-	      y = Math.random() * 500 - 250;
-	      z = Math.random() * 500 - 250;
-	      particle = new THREE.Vector3(x, y, z);
-	      geometry.vertices.push(particle);
-	    }
-	    particles = new THREE.PointCloud(geometry, material);
-	    particles.sortParticles = true;
-	    return this.starfield.add(particles);
-	  };
-
-	  Index.prototype.createNebula = function() {
-	    var count, geometry, i, material, mesh, options, _i;
-	    this.nebula = new THREE.Object3D;
-	    count = 200;
-	    for (i = _i = 0; 0 <= count ? _i < count : _i > count; i = 0 <= count ? ++_i : --_i) {
+	  Index.prototype.createPlanes = function() {
+	    var geometry, i, material, mesh, options, _i, _ref;
+	    this.planes = new THREE.Object3D;
+	    for (i = _i = 0, _ref = this.count; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
 	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
 	      options = {
-	        transparent: true,
 	        side: THREE.DoubleSide,
+	        transparent: true,
 	        depthWrite: false,
 	        depthTest: false,
 	        wireframe: true
 	      };
 	      material = new THREE.MeshNormalMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.x = i * (Math.PI * 2) / count;
-	      mesh.rotation.y = i * (Math.PI * 2) / count;
-	      mesh.rotation.z = i * (Math.PI * 2) / count;
-	      this.nebula.add(mesh);
+	      mesh.rotation.x = i * (Math.PI * 2) / this.count;
+	      this.planes.add(mesh);
 	    }
-	    return Scene.add(this.nebula);
+	    return Scene.add(this.planes);
+	  };
+
+	  Index.prototype.tweenPlanes = function() {
+	    var i, params, plane, _i, _len, _ref, _results;
+	    _ref = this.planes.children;
+	    _results = [];
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      plane = _ref[i];
+	      params = {
+	        x: 1.3,
+	        y: 1.3,
+	        z: 1.3,
+	        ease: Power1.easeInOut,
+	        delay: i * 0.05,
+	        yoyo: true,
+	        repeat: -1
+	      };
+	      _results.push(TweenMax.to(plane.scale, 1, params));
+	    }
+	    return _results;
+	  };
+
+	  Index.prototype.tweenCamera = function() {
+	    var params;
+	    params = {
+	      x: 150,
+	      z: 150,
+	      ease: Power4.easeInOut
+	    };
+	    return TweenMax.to(Camera.position, 2, params);
+	  };
+
+	  Index.prototype.tweenRotation = function(axis) {
+	    var count, i, params, plane, _i, _len, _ref, _results;
+	    if (!this.rotTweenComplete) {
+	      return;
+	    }
+	    this.rotTweenComplete = false;
+	    count = 0;
+	    _ref = this.planes.children;
+	    _results = [];
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      plane = _ref[i];
+	      params = {
+	        ease: Power2.easeInOut,
+	        delay: i * 0.05,
+	        yoyo: true,
+	        repeat: 1,
+	        onComplete: (function(_this) {
+	          return function() {
+	            count++;
+	            if (count === _this.count) {
+	              return _this.rotTweenComplete = true;
+	            }
+	          };
+	        })(this)
+	      };
+	      params[axis] = i * (Math.PI * 2) / this.count;
+	      _results.push(TweenMax.to(plane.rotation, 5, params));
+	    }
+	    return _results;
 	  };
 
 	  Index.prototype.update = function(time) {
-	    var a, plane, v1, v2, _i, _len, _ref, _results;
-	    _ref = this.nebula.children;
+	    var cosA, normal, plane, v1, v2, _i, _len, _ref, _results;
+	    _ref = this.planes.children;
 	    _results = [];
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
 	      plane = _ref[_i];
-	      v1 = plane.geometry.faces[0].normal;
-	      v1 = v1.clone().applyMatrix4(plane.matrix);
+	      normal = plane.geometry.faces[0].normal;
+	      v1 = normal.clone().applyMatrix4(plane.matrix);
 	      v2 = Camera.position.clone().sub(plane.position).normalize();
-	      a = v1.dot(v2);
-	      if (a < 0) {
-	        a = a * -1;
+	      cosA = v1.dot(v2);
+	      if (cosA < 0) {
+	        cosA = cosA * -1;
 	      }
-	      plane.material.opacity = a;
-	      _results.push(plane.rotation.x += 0.01);
+	      _results.push(plane.material.opacity = cosA);
 	    }
 	    return _results;
 	  };
