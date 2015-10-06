@@ -451,14 +451,11 @@
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
+	    this.tweenRotation = __bind(this.tweenRotation, this);
 	    this.createPlanes();
 	    this.tweenPlanes();
 	    this.tweenCamera();
-	    $('#trig-rot span').on('click', (function(_this) {
-	      return function(event) {
-	        return _this.tweenRotation($(event.currentTarget).data('axis'));
-	      };
-	    })(this));
+	    $('#trig-rot span').on('click', this.tweenRotation);
 	    RAF.on('tick', this.update);
 	  }
 
@@ -512,7 +509,7 @@
 	    return TweenMax.to(Camera.position, 2, params);
 	  };
 
-	  Index.prototype.tweenRotation = function(axis) {
+	  Index.prototype.tweenRotation = function() {
 	    var count, i, params, plane, _i, _len, _ref, _results;
 	    if (!this.rotTweenComplete) {
 	      return;
@@ -524,8 +521,9 @@
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      plane = _ref[i];
 	      params = {
-	        ease: Power2.easeInOut,
-	        delay: i * 0.05,
+	        z: i * (Math.PI * 2) / this.count,
+	        ease: Expo.easeInOut,
+	        delay: i * 0.005,
 	        yoyo: true,
 	        repeat: 1,
 	        onComplete: (function(_this) {
@@ -537,7 +535,6 @@
 	          };
 	        })(this)
 	      };
-	      params[axis] = i * (Math.PI * 2) / this.count;
 	      _results.push(TweenMax.to(plane.rotation, 5, params));
 	    }
 	    return _results;

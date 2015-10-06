@@ -14,17 +14,7 @@ module.exports = class Index
     @tweenPlanes()
     @tweenCamera()
 
-    # setTimeout( =>
-
-    #   @rotTweenComplete = true
-
-    #   @tweenRotation('x')
-
-    # , 1000 )
-
-    $('#trig-rot span').on 'click', ( event ) =>
-
-      @tweenRotation $( event.currentTarget ).data('axis')
+    $('#trig-rot span').on 'click', @tweenRotation
 
     RAF.on 'tick', @update
 
@@ -76,7 +66,7 @@ module.exports = class Index
 
     TweenMax.to Camera.position, 2, params
 
-  tweenRotation: ( axis ) ->
+  tweenRotation: =>
 
     return unless @rotTweenComplete
 
@@ -87,8 +77,9 @@ module.exports = class Index
     for plane, i in @planes.children
 
       params =
-        ease      : Power2.easeInOut
-        delay     : i * 0.05
+        z         : i * ( Math.PI * 2 ) / @count
+        ease      : Expo.easeInOut
+        delay     : i * 0.005
         yoyo      : true
         repeat    : 1
         onComplete: =>
@@ -96,8 +87,6 @@ module.exports = class Index
           count++
 
           @rotTweenComplete = true if count is @count
-
-      params[axis] = i * ( Math.PI * 2 ) / @count
 
       TweenMax.to plane.rotation, 5, params
 
