@@ -372,7 +372,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(110, 45, 110);
+	camera.position.set(150, 45, 150);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -445,10 +445,11 @@
 	  };
 
 	  Index.prototype.createNebula = function() {
-	    var geometry, i, images, material, mesh, options, texture, _i;
+	    var count, geometry, i, images, material, mesh, options, texture, _i;
 	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
 	    this.nebula = new THREE.Object3D;
-	    for (i = _i = 0; _i < 10; i = ++_i) {
+	    count = 15;
+	    for (i = _i = 0; 0 <= count ? _i < count : _i > count; i = 0 <= count ? ++_i : --_i) {
 	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
 	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 3)]);
 	      texture.minFilter = THREE.LinearFilter;
@@ -463,7 +464,9 @@
 	      };
 	      material = new THREE.MeshBasicMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.set(Math.random() * 360, Math.random() * 360, Math.random() * 360);
+	      mesh.rotation.x = i * (Math.PI * 2) / count;
+	      mesh.rotation.y = i * (Math.PI * 2) / count;
+	      mesh.rotation.z = i * (Math.PI * 2) / count;
 	      this.nebula.add(mesh);
 	    }
 	    return Scene.add(this.nebula);
@@ -471,6 +474,7 @@
 
 	  Index.prototype.update = function(time) {
 	    var a, plane, v1, v2, _i, _len, _ref, _results;
+	    this.nebula.position.y = Math.sin(time / 500);
 	    _ref = this.nebula.children;
 	    _results = [];
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {

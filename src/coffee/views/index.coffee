@@ -53,7 +53,9 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
-    for i in [0...10]
+    count = 15
+
+    for i in [0...count]
 
       geometry = new THREE.PlaneGeometry 100, 100, 1, 1
 
@@ -72,14 +74,17 @@ module.exports = class Index
       material = new THREE.MeshBasicMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      mesh.rotation.set Math.random() * 360, Math.random() * 360, Math.random() * 360
-      # mesh.position.set Math.random() * 10, Math.random() * 10, Math.random() * 10
+      mesh.rotation.x = i * ( Math.PI * 2 ) / count
+      mesh.rotation.y = i * ( Math.PI * 2 ) / count
+      mesh.rotation.z = i * ( Math.PI * 2 ) / count
 
       @nebula.add mesh
 
     Scene.add @nebula
 
   update: ( time ) =>
+
+    @nebula.position.y = Math.sin( time / 500 )
 
     for plane in @nebula.children
 
