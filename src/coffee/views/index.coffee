@@ -9,7 +9,7 @@ module.exports = class Index
 
   constructor: ->
 
-    # @createStarfield()
+    @createStarfield()
     @createNebula()
 
     RAF.on 'tick', @update

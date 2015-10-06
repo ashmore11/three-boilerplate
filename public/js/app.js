@@ -414,6 +414,7 @@
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
+	    this.createStarfield();
 	    this.createNebula();
 	    RAF.on('tick', this.update);
 	  }
