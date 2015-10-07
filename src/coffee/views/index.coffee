@@ -5,7 +5,8 @@ Camera   = require 'helpers/camera'
 
 module.exports = class Index
 
-  particleCount: 3000
+  particleCount: 5000
+  planeCount   : 15
 
   constructor: ->
 
@@ -23,19 +24,20 @@ module.exports = class Index
     geometry = new THREE.Geometry
 
     options =
-      color       : 0xFFFFFF
-      size        : 2
       map         : THREE.ImageUtils.loadTexture('images/particle.png')
       blending    : THREE.AdditiveBlending
+      size        : 1
       transparent : true
+      depthWrite  : false
+      depthTest   : false
 
     material = new THREE.PointCloudMaterial options
 
     for i in [0...@particleCount]
 
-      x = Math.random() * 500 - 250
-      y = Math.random() * 500 - 250
-      z = Math.random() * 500 - 250
+      x = ( Math.random() * 500 ) - 250
+      y = ( Math.random() * 500 ) - 250
+      z = ( Math.random() * 500 ) - 250
 
       particle = new THREE.Vector3 x, y, z
 
@@ -49,15 +51,12 @@ module.exports = class Index
 
   createNebula: ->
 
-    images = ['images/plasma.jpg','images/plasma2.jpg', 'images/plasma3.jpg']
-
     @nebula = new THREE.Object3D
+    images  = ['images/plasma.jpg','images/plasma2.jpg', 'images/plasma3.jpg']
 
-    count = 15
+    for i in [0...@planeCount]
 
-    for i in [0...count]
-
-      geometry = new THREE.PlaneGeometry 100, 100, 1, 1
+      geometry = new THREE.PlaneGeometry 150, 150, 1, 1
 
       texture           = THREE.ImageUtils.loadTexture images[Math.floor(Math.random() * 3)]
       texture.minFilter = THREE.LinearFilter
@@ -65,8 +64,8 @@ module.exports = class Index
       options =
         map         : texture
         blending    : THREE.AdditiveBlending
-        transparent : true
         side        : THREE.DoubleSide
+        transparent : true
         wireframe   : false
         depthWrite  : false
         depthTest   : false
@@ -74,9 +73,9 @@ module.exports = class Index
       material = new THREE.MeshBasicMaterial options
       mesh     = new THREE.Mesh geometry, material
 
-      mesh.rotation.x = i * ( Math.PI * 2 ) / count
-      mesh.rotation.y = i * ( Math.PI * 2 ) / count
-      mesh.rotation.z = i * ( Math.PI * 2 ) / count
+      mesh.rotation.x = i * ( Math.PI * 2 ) / @planeCount
+      mesh.rotation.y = i * ( Math.PI * 2 ) / @planeCount
+      mesh.rotation.z = i * ( Math.PI * 2 ) / @planeCount
 
       @nebula.add mesh
 
@@ -84,6 +83,7 @@ module.exports = class Index
 
   update: ( time ) =>
 
+    @starfield.rotation.y += 0.000025
     @nebula.position.y = Math.sin( time / 500 )
 
     for plane in @nebula.children

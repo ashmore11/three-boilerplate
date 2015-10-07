@@ -1,4 +1,4 @@
 module.exports =
 
   debug : off
-  fog   : on
+  fog   : off

@@ -112,7 +112,7 @@
 
 	module.exports = {
 	  debug: false,
-	  fog: true
+	  fog: false
 	};
 
 
@@ -359,6 +359,10 @@
 
 	controls.dynamicDampingFactor = 0.5;
 
+	controls.maxDistance = 300;
+
+	controls.minDistance = 100;
+
 	module.exports = controls;
 
 
@@ -372,7 +376,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(150, 45, 150);
+	camera.position.set(180, 30, 180);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -410,7 +414,9 @@
 	Camera = __webpack_require__(7);
 
 	module.exports = Index = (function() {
-	  Index.prototype.particleCount = 3000;
+	  Index.prototype.particleCount = 5000;
+
+	  Index.prototype.planeCount = 15;
 
 	  function Index() {
 	    this.update = __bind(this.update, this);
@@ -425,17 +431,18 @@
 	    Scene.add(this.starfield);
 	    geometry = new THREE.Geometry;
 	    options = {
-	      color: 0xFFFFFF,
-	      size: 2,
 	      map: THREE.ImageUtils.loadTexture('images/particle.png'),
 	      blending: THREE.AdditiveBlending,
-	      transparent: true
+	      size: 1,
+	      transparent: true,
+	      depthWrite: false,
+	      depthTest: false
 	    };
 	    material = new THREE.PointCloudMaterial(options);
 	    for (i = _i = 0, _ref = this.particleCount; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-	      x = Math.random() * 500 - 250;
-	      y = Math.random() * 500 - 250;
-	      z = Math.random() * 500 - 250;
+	      x = (Math.random() * 500) - 250;
+	      y = (Math.random() * 500) - 250;
+	      z = (Math.random() * 500) - 250;
 	      particle = new THREE.Vector3(x, y, z);
 	      geometry.vertices.push(particle);
 	    }
@@ -445,28 +452,27 @@
 	  };
 
 	  Index.prototype.createNebula = function() {
-	    var count, geometry, i, images, material, mesh, options, texture, _i;
-	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
+	    var geometry, i, images, material, mesh, options, texture, _i, _ref;
 	    this.nebula = new THREE.Object3D;
-	    count = 15;
-	    for (i = _i = 0; 0 <= count ? _i < count : _i > count; i = 0 <= count ? ++_i : --_i) {
-	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
+	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
+	    for (i = _i = 0, _ref = this.planeCount; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+	      geometry = new THREE.PlaneGeometry(150, 150, 1, 1);
 	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 3)]);
 	      texture.minFilter = THREE.LinearFilter;
 	      options = {
 	        map: texture,
 	        blending: THREE.AdditiveBlending,
-	        transparent: true,
 	        side: THREE.DoubleSide,
+	        transparent: true,
 	        wireframe: false,
 	        depthWrite: false,
 	        depthTest: false
 	      };
 	      material = new THREE.MeshBasicMaterial(options);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.rotation.x = i * (Math.PI * 2) / count;
-	      mesh.rotation.y = i * (Math.PI * 2) / count;
-	      mesh.rotation.z = i * (Math.PI * 2) / count;
+	      mesh.rotation.x = i * (Math.PI * 2) / this.planeCount;
+	      mesh.rotation.y = i * (Math.PI * 2) / this.planeCount;
+	      mesh.rotation.z = i * (Math.PI * 2) / this.planeCount;
 	      this.nebula.add(mesh);
 	    }
 	    return Scene.add(this.nebula);
@@ -474,6 +480,7 @@
 
 	  Index.prototype.update = function(time) {
 	    var a, plane, v1, v2, _i, _len, _ref, _results;
+	    this.starfield.rotation.y += 0.000025;
 	    this.nebula.position.y = Math.sin(time / 500);
 	    _ref = this.nebula.children;
 	    _results = [];
