@@ -506,7 +506,13 @@
 	      z: 150,
 	      ease: Power4.easeInOut
 	    };
-	    return TweenMax.to(Camera.position, 2, params);
+	    TweenMax.to(Camera.position, 20, params);
+	    this.planes.rotation.y = -(Math.PI / 4);
+	    params = {
+	      y: Math.PI / 12,
+	      ease: Power4.easeInOut
+	    };
+	    return TweenMax.to(this.planes.rotation, 20, params);
 	  };
 
 	  Index.prototype.tweenRotation = function() {
@@ -521,16 +527,22 @@
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      plane = _ref[i];
 	      params = {
-	        z: i * (Math.PI * 2) / this.count,
-	        ease: Expo.easeInOut,
+	        z: Math.PI * 2,
+	        ease: Power1.easeInOut,
 	        delay: i * 0.005,
-	        yoyo: true,
-	        repeat: 1,
 	        onComplete: (function(_this) {
 	          return function() {
+	            var _j, _len1, _ref1, _results1;
 	            count++;
 	            if (count === _this.count) {
-	              return _this.rotTweenComplete = true;
+	              _this.rotTweenComplete = true;
+	              _ref1 = _this.planes.children;
+	              _results1 = [];
+	              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+	                plane = _ref1[_j];
+	                _results1.push(plane.rotation.z = 0);
+	              }
+	              return _results1;
 	            }
 	          };
 	        })(this)

@@ -64,7 +64,15 @@ module.exports = class Index
       z    : 150
       ease : Power4.easeInOut
 
-    TweenMax.to Camera.position, 2, params
+    TweenMax.to Camera.position, 20, params
+
+    @planes.rotation.y = -( Math.PI / 4 )
+
+    params =
+      y    : Math.PI / 12
+      ease : Power4.easeInOut
+
+    TweenMax.to @planes.rotation, 20, params
 
   tweenRotation: =>
 
@@ -77,20 +85,23 @@ module.exports = class Index
     for plane, i in @planes.children
 
       params =
-        z         : i * ( Math.PI * 2 ) / @count
-        ease      : Expo.easeInOut
+        z         : Math.PI * 2
+        ease      : Power1.easeInOut
         delay     : i * 0.005
-        yoyo      : true
-        repeat    : 1
         onComplete: =>
 
           count++
 
-          @rotTweenComplete = true if count is @count
+          if count is @count
+
+            @rotTweenComplete = true
+            plane.rotation.z  = 0 for plane in @planes.children
 
       TweenMax.to plane.rotation, 5, params
 
   update: ( time ) =>
+
+    # @planes.rotation.y += 0.01
 
     for plane in @planes.children
 
