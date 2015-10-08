@@ -457,8 +457,19 @@
 	    z: 1.3
 	  };
 
+	  Index.prototype.materialOptions = {
+	    side: THREE.DoubleSide,
+	    transparent: true,
+	    depthWrite: false,
+	    depthTest: false,
+	    wireframe: true
+	  };
+
+	  Index.prototype.materialType = [THREE.MeshBasicMaterial, THREE.MeshNormalMaterial];
+
 	  function Index() {
 	    this.update = __bind(this.update, this);
+	    this.updateMaterial = __bind(this.updateMaterial, this);
 	    this.spinAxis = __bind(this.spinAxis, this);
 	    this.createPlanes();
 	    this.tweenPlanes();
@@ -479,8 +490,9 @@
 	        depthTest: false,
 	        wireframe: true
 	      };
-	      material = new THREE.MeshBasicMaterial(options);
+	      material = new THREE.MeshNormalMaterial(this.materialOptions);
 	      mesh = new THREE.Mesh(geometry, material);
+	      mesh.dynamic = true;
 	      mesh.rotation.x = i * (Math.PI * 2) / this.planeCount;
 	      this.planes.add(mesh);
 	    }
@@ -514,13 +526,13 @@
 	      z: 150,
 	      ease: Power4.easeInOut
 	    };
-	    TweenMax.to(Camera.position, 2, params);
+	    TweenMax.to(Camera.position, 20, params);
 	    this.planes.rotation.y = -(Math.PI / 4);
 	    params = {
 	      y: Math.PI / 12,
 	      ease: Power4.easeInOut
 	    };
-	    return TweenMax.to(this.planes.rotation, 2, params);
+	    return TweenMax.to(this.planes.rotation, 20, params);
 	  };
 
 	  Index.prototype.spinAxis = function() {
@@ -560,6 +572,28 @@
 	    return _results;
 	  };
 
+	  Index.prototype.sideView = function() {
+	    var params;
+	    params = {
+	      x: 200,
+	      y: 0,
+	      z: -53,
+	      ease: Power4.easeInOut
+	    };
+	    return TweenMax.to(Camera.position, 2, params);
+	  };
+
+	  Index.prototype.updateMaterial = function(material) {
+	    var plane, _i, _len, _ref, _results;
+	    _ref = this.planes.children;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      plane = _ref[_i];
+	      _results.push(plane.material = new THREE[material](this.materialOptions));
+	    }
+	    return _results;
+	  };
+
 	  Index.prototype.update = function(time) {
 	    var cosA, normal, plane, v1, v2, _i, _len, _ref, _results;
 	    Scene.updateMatrixWorld();
@@ -580,9 +614,16 @@
 	  };
 
 	  Index.prototype.gui = function() {
-	    var gui;
+	    var gui, material;
 	    gui = new dat.GUI;
-	    return gui.add(this, 'spinAxis');
+	    gui.add(this, 'spinAxis');
+	    gui.add(this, 'sideView');
+	    material = gui.add(this, "materialType", ['MeshNormalMaterial', 'MeshBasicMaterial']);
+	    return material.onChange((function(_this) {
+	      return function(value) {
+	        return _this.updateMaterial(value);
+	      };
+	    })(this));
 	  };
 
 	  return Index;

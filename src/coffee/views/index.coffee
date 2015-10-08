@@ -15,6 +15,18 @@ module.exports = class Index
     y: 1.3
     z: 1.3
 
+  materialOptions:
+    side        : THREE.DoubleSide
+    transparent : true
+    depthWrite  : false
+    depthTest   : false
+    wireframe   : true
+
+  materialType: [
+    THREE.MeshBasicMaterial
+    THREE.MeshNormalMaterial
+  ]
+
   constructor: ->
 
     @createPlanes()
@@ -39,8 +51,10 @@ module.exports = class Index
         depthTest   : false
         wireframe   : true
       
-      material = new THREE.MeshBasicMaterial options
+      material = new THREE.MeshNormalMaterial @materialOptions
       mesh     = new THREE.Mesh geometry, material
+
+      mesh.dynamic = true
 
       mesh.rotation.x = i * ( Math.PI * 2 ) / @planeCount
 
@@ -70,7 +84,7 @@ module.exports = class Index
       z    : 150
       ease : Power4.easeInOut
 
-    TweenMax.to Camera.position, 2, params
+    TweenMax.to Camera.position, 20, params
 
     @planes.rotation.y = -( Math.PI / 4 )
 
@@ -78,7 +92,7 @@ module.exports = class Index
       y    : Math.PI / 12
       ease : Power4.easeInOut
 
-    TweenMax.to @planes.rotation, 2, params
+    TweenMax.to @planes.rotation, 20, params
 
   spinAxis: =>
 
@@ -104,6 +118,22 @@ module.exports = class Index
             plane.rotation.z  = 0 for plane in @planes.children
 
       TweenMax.to plane.rotation, 5, params
+
+  sideView: ->
+
+    params =
+      x    : 200
+      y    : 0
+      z    : -53
+      ease : Power4.easeInOut
+
+    TweenMax.to Camera.position, 2, params
+
+  updateMaterial: ( material ) =>
+
+    for plane in @planes.children
+
+      plane.material = new THREE[material] @materialOptions
 
   update: ( time ) =>
 
@@ -133,3 +163,8 @@ module.exports = class Index
     gui = new dat.GUI
 
     gui.add @, 'spinAxis'
+    gui.add @, 'sideView'
+
+    material = gui.add @, "materialType", ['MeshNormalMaterial', 'MeshBasicMaterial']
+
+    material.onChange ( value ) => @updateMaterial value
