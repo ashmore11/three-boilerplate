@@ -418,12 +418,10 @@
 
 	  Index.prototype.planeCount = 15;
 
-	  Index.prototype.meshRadius = 300;
-
 	  function Index() {
 	    this.update = __bind(this.update, this);
-	    this.radialWave = __bind(this.radialWave, this);
-	    this.createSpecialMesh();
+	    this.createStarfield();
+	    this.createNebula();
 	    RAF.on('tick', this.update);
 	  }
 
@@ -435,7 +433,7 @@
 	    options = {
 	      map: THREE.ImageUtils.loadTexture('images/particle.png'),
 	      blending: THREE.AdditiveBlending,
-	      size: 2,
+	      size: 1,
 	      transparent: true,
 	      depthWrite: false,
 	      depthTest: false
@@ -453,38 +451,51 @@
 	    return this.starfield.add(particles);
 	  };
 
-	  Index.prototype.createSpecialMesh = function() {
-	    var geometry, material, matrix, mesh;
-	    geometry = new THREE.ParametricGeometry(this.radialWave, 25, 25, false);
-	    material = new THREE.MeshBasicMaterial({
-	      wireframe: true,
-	      side: THREE.DoubleSide
-	    });
-	    mesh = new THREE.Mesh(geometry, material);
-	    matrix = new THREE.Matrix4;
-	    geometry.applyMatrix(matrix.makeTranslation(-(this.meshRadius / 2), 0, -(this.meshRadius / 2)));
-	    return Scene.add(mesh);
-	  };
-
-	  Index.prototype.radialWave = function(u, v) {
-	    var r, vector, x, y, z;
-	    r = this.meshRadius;
-	    x = Math.sin(u) * r;
-	    z = Math.sin(v / 2) * 2 * r;
-	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 4 * Math.PI)) * 8;
-	    vector = new THREE.Vector3(x, y, z);
-	    return vector;
+	  Index.prototype.createNebula = function() {
+	    var geometry, i, images, material, mesh, options, texture, _i, _ref;
+	    this.nebula = new THREE.Object3D;
+	    images = ['images/plasma.jpg', 'images/plasma2.jpg', 'images/plasma3.jpg'];
+	    for (i = _i = 0, _ref = this.planeCount; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+	      geometry = new THREE.PlaneGeometry(150, 150, 1, 1);
+	      texture = THREE.ImageUtils.loadTexture(images[Math.floor(Math.random() * 3)]);
+	      texture.minFilter = THREE.LinearFilter;
+	      options = {
+	        map: texture,
+	        blending: THREE.AdditiveBlending,
+	        side: THREE.DoubleSide,
+	        transparent: true,
+	        wireframe: false,
+	        depthWrite: false,
+	        depthTest: false
+	      };
+	      material = new THREE.MeshBasicMaterial(options);
+	      mesh = new THREE.Mesh(geometry, material);
+	      mesh.rotation.x = i * (Math.PI * 2) / this.planeCount;
+	      mesh.rotation.y = i * (Math.PI * 2) / this.planeCount;
+	      mesh.rotation.z = i * (Math.PI * 2) / this.planeCount;
+	      this.nebula.add(mesh);
+	    }
+	    return Scene.add(this.nebula);
 	  };
 
 	  Index.prototype.update = function(time) {
-	    var _ref, _ref1, _ref2;
-	    if ((_ref = this.starfield) != null) {
-	      _ref.rotation.y += 0.000025;
+	    var a, plane, v1, v2, _i, _len, _ref, _results;
+	    this.starfield.rotation.y += 0.000025;
+	    this.nebula.position.y = Math.sin(time / 500);
+	    _ref = this.nebula.children;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      plane = _ref[_i];
+	      v1 = plane.geometry.faces[0].normal;
+	      v1 = v1.clone().applyMatrix4(plane.matrix);
+	      v2 = Camera.position.clone().sub(plane.position).normalize();
+	      a = v1.dot(v2);
+	      if (a < 0) {
+	        a = a * -1;
+	      }
+	      _results.push(plane.material.opacity = a);
 	    }
-	    if ((_ref1 = this.starfield) != null) {
-	      _ref1.position.y -= 0.025;
-	    }
-	    return (_ref2 = this.nebula) != null ? _ref2.position.y = Math.sin(time / 500) : void 0;
+	    return _results;
 	  };
 
 	  return Index;
