@@ -9,7 +9,5 @@ controls.noZoom               = false
 controls.noPan                = false
 controls.staticMoving         = true
 controls.dynamicDampingFactor = 0.5
-controls.maxDistance          = 300
-controls.minDistance          = 100
 
 module.exports = controls

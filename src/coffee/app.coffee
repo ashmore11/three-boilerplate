@@ -18,8 +18,7 @@ class APP
 
     if Settings.debug
 
-      Scene.add new THREE.GridHelper 50, 10
-      Scene.add new THREE.AxisHelper 60
+      Scene.add new THREE.AxisHelper 200
 
     @view = new View
 

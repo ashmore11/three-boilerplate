@@ -76,8 +76,7 @@
 	    this.resize = __bind(this.resize, this);
 	    this.update = __bind(this.update, this);
 	    if (Settings.debug) {
-	      Scene.add(new THREE.GridHelper(50, 10));
-	      Scene.add(new THREE.AxisHelper(60));
+	      Scene.add(new THREE.AxisHelper(200));
 	    }
 	    this.view = new View;
 	    RAF.on('tick', this.update);
@@ -111,7 +110,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
-	  debug: false,
+	  debug: true,
 	  fog: false
 	};
 
@@ -359,10 +358,6 @@
 
 	controls.dynamicDampingFactor = 0.5;
 
-	controls.maxDistance = 300;
-
-	controls.minDistance = 100;
-
 	module.exports = controls;
 
 
@@ -376,7 +371,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(180, 30, 180);
+	camera.position.set(180, 45, 180);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -420,10 +415,17 @@
 
 	  Index.prototype.meshRadius = 300;
 
+	  Index.prototype.faces = [];
+
 	  function Index() {
 	    this.update = __bind(this.update, this);
 	    this.radialWave = __bind(this.radialWave, this);
+	    this.createStarfield();
 	    this.createSpecialMesh();
+	    this.explodeGeometry();
+	    this.createFaceArray();
+	    this.getNewVectorPos();
+	    this.tweenFaces();
 	    RAF.on('tick', this.update);
 	  }
 
@@ -454,37 +456,152 @@
 	  };
 
 	  Index.prototype.createSpecialMesh = function() {
-	    var geometry, material, matrix, mesh;
-	    geometry = new THREE.ParametricGeometry(this.radialWave, 25, 25, false);
+	    var geometry, i, material, matrix, mesh, vertex, _i, _len, _ref, _results;
+	    this.nebula = new THREE.Object3D;
+	    geometry = new THREE.ParametricGeometry(this.radialWave, 50, 50, false);
 	    material = new THREE.MeshBasicMaterial({
 	      wireframe: true,
 	      side: THREE.DoubleSide
 	    });
 	    mesh = new THREE.Mesh(geometry, material);
 	    matrix = new THREE.Matrix4;
-	    geometry.applyMatrix(matrix.makeTranslation(-(this.meshRadius / 2), 0, -(this.meshRadius / 2)));
-	    return Scene.add(mesh);
+	    geometry.applyMatrix(matrix.makeTranslation(-(250 / 2), 0, -(250 / 2)));
+	    this.nebula.add(mesh);
+	    Scene.add(this.nebula);
+	    _ref = this.nebula.children;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      mesh = _ref[_i];
+	      _results.push((function() {
+	        var _j, _len1, _ref1, _results1;
+	        _ref1 = mesh.geometry.vertices;
+	        _results1 = [];
+	        for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+	          vertex = _ref1[i];
+	          if (i === 0) {
+	            _results1.push(console.log(vertex.y));
+	          } else {
+	            _results1.push(void 0);
+	          }
+	        }
+	        return _results1;
+	      })());
+	    }
+	    return _results;
 	  };
 
 	  Index.prototype.radialWave = function(u, v) {
-	    var r, vector, x, y, z;
-	    r = this.meshRadius;
-	    x = Math.sin(u) * r;
-	    z = Math.sin(v / 2) * 2 * r;
-	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 4 * Math.PI)) * 8;
+	    var vector, x, y, z;
+	    x = Math.sin(u) * this.meshRadius;
+	    z = Math.sin(v) * this.meshRadius;
+	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 6 * Math.PI)) * 6;
 	    vector = new THREE.Vector3(x, y, z);
 	    return vector;
 	  };
 
+	  Index.prototype.explodeGeometry = function() {
+	    var a, b, c, face, geometry, i, n, va, vb, vc, vertices, _i, _len, _ref;
+	    geometry = this.nebula.children[0].geometry;
+	    vertices = [];
+	    _ref = geometry.faces;
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      face = _ref[i];
+	      n = vertices.length;
+	      a = face.a;
+	      b = face.b;
+	      c = face.c;
+	      va = geometry.vertices[a];
+	      vb = geometry.vertices[b];
+	      vc = geometry.vertices[c];
+	      vertices.push(va.clone());
+	      vertices.push(vb.clone());
+	      vertices.push(vc.clone());
+	      face.a = n;
+	      face.b = n + 1;
+	      face.c = n + 2;
+	    }
+	    return geometry.vertices = vertices;
+	  };
+
+	  Index.prototype.createFaceArray = function() {
+	    var arr, i, vertex, _i, _len, _ref, _results;
+	    _ref = this.nebula.children[0].geometry.vertices;
+	    _results = [];
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      vertex = _ref[i];
+	      if (i % 3 === 0) {
+	        if (i !== 0) {
+	          this.faces.push(arr);
+	        }
+	        arr = [];
+	      }
+	      _results.push(arr.push(vertex));
+	    }
+	    return _results;
+	  };
+
+	  Index.prototype.getNewVectorPos = function() {
+	    var center, cx, cy, cz, diff, face, length, _i, _len, _ref, _results;
+	    _ref = this.faces;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      face = _ref[_i];
+	      cx = (face[0].x + face[1].x + face[2].x) / 3;
+	      cy = (face[0].y + face[1].y + face[2].y) / 3;
+	      cz = (face[0].z + face[1].z + face[2].z) / 3;
+	      center = new THREE.Vector3(cx, cy, cz);
+	      diff = center.sub(this.nebula.children[0].position);
+	      length = diff.length();
+	      diff.normalize();
+	      diff.multiplyScalar(10);
+	      _results.push(face.diff = diff);
+	    }
+	    return _results;
+	  };
+
+	  Index.prototype.colorFaces = function() {
+	    var color, face, _i, _len, _ref, _results;
+	    _ref = this.nebula.children[0].geometry.faces;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      face = _ref[_i];
+	      color = RandomColor({
+	        hue: 'red',
+	        luminosity: 'bright'
+	      }).split('#')[1];
+	      _results.push(face.color.setHex("0x" + color));
+	    }
+	    return _results;
+	  };
+
+	  Index.prototype.tweenFaces = function() {
+	    var face, i, params, vertex, _i, _len, _ref, _results;
+	    _ref = this.faces;
+	    _results = [];
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      face = _ref[i];
+	      _results.push((function() {
+	        var _j, _len1, _results1;
+	        _results1 = [];
+	        for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
+	          vertex = face[_j];
+	          params = {
+	            y: vertex.y + face.diff.y,
+	            delay: 0,
+	            ease: Power1.easeInOut,
+	            repeat: -1,
+	            yoyo: true
+	          };
+	          _results1.push(TweenMax.to(vertex, 1, params));
+	        }
+	        return _results1;
+	      })());
+	    }
+	    return _results;
+	  };
+
 	  Index.prototype.update = function(time) {
-	    var _ref, _ref1, _ref2;
-	    if ((_ref = this.starfield) != null) {
-	      _ref.rotation.y += 0.000025;
-	    }
-	    if ((_ref1 = this.starfield) != null) {
-	      _ref1.position.y -= 0.025;
-	    }
-	    return (_ref2 = this.nebula) != null ? _ref2.position.y = Math.sin(time / 500) : void 0;
+	    return this.nebula.children[0].geometry.verticesNeedUpdate = true;
 	  };
 
 	  return Index;
