@@ -2,6 +2,7 @@ Settings = require 'settings'
 RAF      = require 'utils/raf'
 Scene    = require 'helpers/scene'
 Camera   = require 'helpers/camera'
+Controls = require 'helpers/controls'
 dat      = require 'dat-gui'
 
 module.exports = class Index
@@ -9,11 +10,13 @@ module.exports = class Index
   planeCount: 200
   
   rotTweenComplete: true
+  transparentEdges: true
+  introTweenComplete: false
   
   scale:
-    x: 1.3
-    y: 1.3
-    z: 1.3
+    x: 1.2
+    y: 1.2
+    z: 1.2
 
   materialOptions:
     side        : THREE.DoubleSide
@@ -43,20 +46,11 @@ module.exports = class Index
     for i in [0...@planeCount]
 
       geometry = new THREE.PlaneGeometry 100, 100, 1, 1
-
-      options =
-        side        : THREE.DoubleSide
-        transparent : true
-        depthWrite  : false
-        depthTest   : false
-        wireframe   : true
-      
       material = new THREE.MeshNormalMaterial @materialOptions
       mesh     = new THREE.Mesh geometry, material
 
-      mesh.dynamic = true
-
       mesh.rotation.x = i * ( Math.PI * 2 ) / @planeCount
+      mesh.dynamic    = true
 
       @planes.add mesh
 
@@ -84,15 +78,18 @@ module.exports = class Index
       z    : 150
       ease : Power4.easeInOut
 
-    TweenMax.to Camera.position, 20, params
+    TweenMax.to Camera.position, 2, params
 
     @planes.rotation.y = -( Math.PI / 4 )
 
     params =
       y    : Math.PI / 12
       ease : Power4.easeInOut
+      onComplete: => 
 
-    TweenMax.to @planes.rotation, 20, params
+        @introTweenComplete = true
+
+    TweenMax.to @planes.rotation, 2, params
 
   spinAxis: =>
 
@@ -129,6 +126,26 @@ module.exports = class Index
 
     TweenMax.to Camera.position, 2, params
 
+  upView: ->
+
+    params =
+      x    : 136
+      y    : 151
+      z    : -36
+      ease : Power4.easeInOut
+
+    TweenMax.to Camera.position, 2, params
+
+  originalView: ->
+
+    params =
+      x    : 150
+      y    : 0
+      z    : 150
+      ease : Power4.easeInOut
+
+    TweenMax.to Camera.position, 2, params
+
   updateMaterial: ( material ) =>
 
     for plane in @planes.children
@@ -137,7 +154,7 @@ module.exports = class Index
 
   update: ( time ) =>
 
-    Scene.updateMatrixWorld()
+    Controls.enabled = @introTweenComplete
 
     for plane in @planes.children
 
@@ -155,16 +172,25 @@ module.exports = class Index
       # Normalize the value to be between 0 and 1
       if cosA < 0 then cosA = cosA * -1
 
-      # Set the opacity of the material with the result
-      plane.material.opacity = cosA
+      if @transparentEdges
+        
+        plane.material.opacity = cosA
+
+      else
+
+        plane.material.opacity = 1
 
   gui: ->
 
     gui = new dat.GUI
 
+    material = gui.add @, "materialType", ['MeshNormalMaterial', 'MeshBasicMaterial']
+    material.onChange ( value ) => @updateMaterial value
+
+    edges = gui.add( @, 'transparentEdges' ).listen()
+    edges.onChange ( value ) => @transparentEdges = value
+
     gui.add @, 'spinAxis'
     gui.add @, 'sideView'
-
-    material = gui.add @, "materialType", ['MeshNormalMaterial', 'MeshBasicMaterial']
-
-    material.onChange ( value ) => @updateMaterial value
+    gui.add @, 'upView'
+    gui.add @, 'originalView'

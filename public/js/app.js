@@ -433,7 +433,7 @@
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Camera, Index, RAF, Scene, Settings, dat,
+	var Camera, Controls, Index, RAF, Scene, Settings, dat,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 	Settings = __webpack_require__(1);
@@ -444,6 +444,8 @@
 
 	Camera = __webpack_require__(7);
 
+	Controls = __webpack_require__(6);
+
 	dat = __webpack_require__(11);
 
 	module.exports = Index = (function() {
@@ -451,10 +453,14 @@
 
 	  Index.prototype.rotTweenComplete = true;
 
+	  Index.prototype.transparentEdges = true;
+
+	  Index.prototype.introTweenComplete = false;
+
 	  Index.prototype.scale = {
-	    x: 1.3,
-	    y: 1.3,
-	    z: 1.3
+	    x: 1.2,
+	    y: 1.2,
+	    z: 1.2
 	  };
 
 	  Index.prototype.materialOptions = {
@@ -479,21 +485,14 @@
 	  }
 
 	  Index.prototype.createPlanes = function() {
-	    var geometry, i, material, mesh, options, _i, _ref;
+	    var geometry, i, material, mesh, _i, _ref;
 	    this.planes = new THREE.Object3D;
 	    for (i = _i = 0, _ref = this.planeCount; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
 	      geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
-	      options = {
-	        side: THREE.DoubleSide,
-	        transparent: true,
-	        depthWrite: false,
-	        depthTest: false,
-	        wireframe: true
-	      };
 	      material = new THREE.MeshNormalMaterial(this.materialOptions);
 	      mesh = new THREE.Mesh(geometry, material);
-	      mesh.dynamic = true;
 	      mesh.rotation.x = i * (Math.PI * 2) / this.planeCount;
+	      mesh.dynamic = true;
 	      this.planes.add(mesh);
 	    }
 	    return Scene.add(this.planes);
@@ -526,13 +525,18 @@
 	      z: 150,
 	      ease: Power4.easeInOut
 	    };
-	    TweenMax.to(Camera.position, 20, params);
+	    TweenMax.to(Camera.position, 2, params);
 	    this.planes.rotation.y = -(Math.PI / 4);
 	    params = {
 	      y: Math.PI / 12,
-	      ease: Power4.easeInOut
+	      ease: Power4.easeInOut,
+	      onComplete: (function(_this) {
+	        return function() {
+	          return _this.introTweenComplete = true;
+	        };
+	      })(this)
 	    };
-	    return TweenMax.to(this.planes.rotation, 20, params);
+	    return TweenMax.to(this.planes.rotation, 2, params);
 	  };
 
 	  Index.prototype.spinAxis = function() {
@@ -583,6 +587,28 @@
 	    return TweenMax.to(Camera.position, 2, params);
 	  };
 
+	  Index.prototype.upView = function() {
+	    var params;
+	    params = {
+	      x: 136,
+	      y: 151,
+	      z: -36,
+	      ease: Power4.easeInOut
+	    };
+	    return TweenMax.to(Camera.position, 2, params);
+	  };
+
+	  Index.prototype.originalView = function() {
+	    var params;
+	    params = {
+	      x: 150,
+	      y: 0,
+	      z: 150,
+	      ease: Power4.easeInOut
+	    };
+	    return TweenMax.to(Camera.position, 2, params);
+	  };
+
 	  Index.prototype.updateMaterial = function(material) {
 	    var plane, _i, _len, _ref, _results;
 	    _ref = this.planes.children;
@@ -596,7 +622,7 @@
 
 	  Index.prototype.update = function(time) {
 	    var cosA, normal, plane, v1, v2, _i, _len, _ref, _results;
-	    Scene.updateMatrixWorld();
+	    Controls.enabled = this.introTweenComplete;
 	    _ref = this.planes.children;
 	    _results = [];
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -608,22 +634,34 @@
 	      if (cosA < 0) {
 	        cosA = cosA * -1;
 	      }
-	      _results.push(plane.material.opacity = cosA);
+	      if (this.transparentEdges) {
+	        _results.push(plane.material.opacity = cosA);
+	      } else {
+	        _results.push(plane.material.opacity = 1);
+	      }
 	    }
 	    return _results;
 	  };
 
 	  Index.prototype.gui = function() {
-	    var gui, material;
+	    var edges, gui, material;
 	    gui = new dat.GUI;
-	    gui.add(this, 'spinAxis');
-	    gui.add(this, 'sideView');
 	    material = gui.add(this, "materialType", ['MeshNormalMaterial', 'MeshBasicMaterial']);
-	    return material.onChange((function(_this) {
+	    material.onChange((function(_this) {
 	      return function(value) {
 	        return _this.updateMaterial(value);
 	      };
 	    })(this));
+	    edges = gui.add(this, 'transparentEdges').listen();
+	    edges.onChange((function(_this) {
+	      return function(value) {
+	        return _this.transparentEdges = value;
+	      };
+	    })(this));
+	    gui.add(this, 'spinAxis');
+	    gui.add(this, 'sideView');
+	    gui.add(this, 'upView');
+	    return gui.add(this, 'originalView');
 	  };
 
 	  return Index;
