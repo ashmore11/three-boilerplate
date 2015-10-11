@@ -422,7 +422,6 @@
 	    this.radialWave = __bind(this.radialWave, this);
 	    this.createStarfield();
 	    this.createSpecialMesh();
-	    this.explodeGeometry();
 	    this.createFaceArray();
 	    this.getNewVectorPos();
 	    this.tweenFaces();
@@ -456,9 +455,9 @@
 	  };
 
 	  Index.prototype.createSpecialMesh = function() {
-	    var geometry, i, material, matrix, mesh, vertex, _i, _len, _ref, _results;
+	    var geometry, material, matrix, mesh;
 	    this.nebula = new THREE.Object3D;
-	    geometry = new THREE.ParametricGeometry(this.radialWave, 50, 50, false);
+	    geometry = new THREE.ParametricGeometry(this.radialWave, 100, 100, false);
 	    material = new THREE.MeshBasicMaterial({
 	      wireframe: true,
 	      side: THREE.DoubleSide
@@ -467,27 +466,7 @@
 	    matrix = new THREE.Matrix4;
 	    geometry.applyMatrix(matrix.makeTranslation(-(250 / 2), 0, -(250 / 2)));
 	    this.nebula.add(mesh);
-	    Scene.add(this.nebula);
-	    _ref = this.nebula.children;
-	    _results = [];
-	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      mesh = _ref[_i];
-	      _results.push((function() {
-	        var _j, _len1, _ref1, _results1;
-	        _ref1 = mesh.geometry.vertices;
-	        _results1 = [];
-	        for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
-	          vertex = _ref1[i];
-	          if (i === 0) {
-	            _results1.push(console.log(vertex.y));
-	          } else {
-	            _results1.push(void 0);
-	          }
-	        }
-	        return _results1;
-	      })());
-	    }
-	    return _results;
+	    return Scene.add(this.nebula);
 	  };
 
 	  Index.prototype.radialWave = function(u, v) {
@@ -497,30 +476,6 @@
 	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 6 * Math.PI)) * 6;
 	    vector = new THREE.Vector3(x, y, z);
 	    return vector;
-	  };
-
-	  Index.prototype.explodeGeometry = function() {
-	    var a, b, c, face, geometry, i, n, va, vb, vc, vertices, _i, _len, _ref;
-	    geometry = this.nebula.children[0].geometry;
-	    vertices = [];
-	    _ref = geometry.faces;
-	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-	      face = _ref[i];
-	      n = vertices.length;
-	      a = face.a;
-	      b = face.b;
-	      c = face.c;
-	      va = geometry.vertices[a];
-	      vb = geometry.vertices[b];
-	      vc = geometry.vertices[c];
-	      vertices.push(va.clone());
-	      vertices.push(vb.clone());
-	      vertices.push(vc.clone());
-	      face.a = n;
-	      face.b = n + 1;
-	      face.c = n + 2;
-	    }
-	    return geometry.vertices = vertices;
 	  };
 
 	  Index.prototype.createFaceArray = function() {
@@ -553,23 +508,8 @@
 	      diff = center.sub(this.nebula.children[0].position);
 	      length = diff.length();
 	      diff.normalize();
-	      diff.multiplyScalar(10);
+	      diff.multiplyScalar(20);
 	      _results.push(face.diff = diff);
-	    }
-	    return _results;
-	  };
-
-	  Index.prototype.colorFaces = function() {
-	    var color, face, _i, _len, _ref, _results;
-	    _ref = this.nebula.children[0].geometry.faces;
-	    _results = [];
-	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      face = _ref[_i];
-	      color = RandomColor({
-	        hue: 'red',
-	        luminosity: 'bright'
-	      }).split('#')[1];
-	      _results.push(face.color.setHex("0x" + color));
 	    }
 	    return _results;
 	  };
@@ -587,12 +527,12 @@
 	          vertex = face[_j];
 	          params = {
 	            y: vertex.y + face.diff.y,
-	            delay: 0,
+	            delay: i * 0.01,
 	            ease: Power1.easeInOut,
 	            repeat: -1,
 	            yoyo: true
 	          };
-	          _results1.push(TweenMax.to(vertex, 1, params));
+	          _results1.push(TweenMax.to(vertex, 2, params));
 	        }
 	        return _results1;
 	      })());

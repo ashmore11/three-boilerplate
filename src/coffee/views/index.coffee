@@ -14,10 +14,8 @@ module.exports = class Index
 
     @createStarfield()
     @createSpecialMesh()
-    @explodeGeometry()
     @createFaceArray()
     @getNewVectorPos()
-    # @colorFaces()
     @tweenFaces()
 
     RAF.on 'tick', @update
@@ -31,7 +29,7 @@ module.exports = class Index
     geometry = new THREE.Geometry
 
     options =
-      map         : THREE.ImageUtils.loadTexture('images/particle.png')
+      map         : THREE.ImageUtils.loadTexture 'images/particle.png'
       blending    : THREE.AdditiveBlending
       size        : 2
       transparent : true
@@ -60,7 +58,7 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
-    geometry = new THREE.ParametricGeometry @radialWave, 50, 50, false
+    geometry = new THREE.ParametricGeometry @radialWave, 100, 100, false
     material = new THREE.MeshBasicMaterial wireframe: true, side: THREE.DoubleSide
     mesh     = new THREE.Mesh geometry, material
     matrix   = new THREE.Matrix4
@@ -71,14 +69,6 @@ module.exports = class Index
     
     Scene.add @nebula
 
-    for mesh in @nebula.children
-
-      for vertex, i in mesh.geometry.vertices
-
-        if i is 0
-
-          console.log vertex.y
-
   radialWave: ( u, v ) =>
 
     x = Math.sin( u ) * @meshRadius
@@ -88,33 +78,6 @@ module.exports = class Index
     vector = new THREE.Vector3 x, y, z
     
     return vector
-
-  explodeGeometry: ->
-
-    geometry = @nebula.children[0].geometry
-    vertices = []
-
-    for face, i in geometry.faces
-
-      n = vertices.length
-
-      a = face.a
-      b = face.b
-      c = face.c
-
-      va = geometry.vertices[ a ]
-      vb = geometry.vertices[ b ]
-      vc = geometry.vertices[ c ]
-
-      vertices.push va.clone()
-      vertices.push vb.clone()
-      vertices.push vc.clone()
-
-      face.a = n
-      face.b = n + 1
-      face.c = n + 2
-
-    geometry.vertices = vertices
 
   createFaceArray: ->
 
@@ -141,17 +104,9 @@ module.exports = class Index
       length = diff.length()
 
       diff.normalize()
-      diff.multiplyScalar 10
+      diff.multiplyScalar 20
 
       face.diff = diff
-
-  colorFaces: ->
-
-    for face in @nebula.children[0].geometry.faces
-
-      color = RandomColor( hue: 'red', luminosity: 'bright' ).split('#')[1]
-
-      face.color.setHex "0x#{color}"
 
   tweenFaces: ->
 
@@ -161,12 +116,12 @@ module.exports = class Index
 
         params =
           y      : vertex.y + face.diff.y
-          delay  : 0
+          delay  : i * 0.01
           ease   : Power1.easeInOut
           repeat : -1
           yoyo   : true
 
-        TweenMax.to vertex, 1, params
+        TweenMax.to vertex, 2, params
 
   update: ( time ) =>
 
