@@ -12,7 +12,7 @@ module.exports = class Index
 
   constructor: ->
 
-    @createStarfield()
+    # @createStarfield()
     @createSpecialMesh()
     @createFaceArray()
     @getNewVectorPos()
@@ -63,7 +63,7 @@ module.exports = class Index
     mesh     = new THREE.Mesh geometry, material
     matrix   = new THREE.Matrix4
 
-    geometry.applyMatrix matrix.makeTranslation -( 250 / 2 ), 0, -( 250 / 2 )
+    geometry.applyMatrix matrix.makeTranslation -( @meshRadius / 2 ), 0, -( @meshRadius / 2 )
 
     @nebula.add mesh
     
@@ -115,13 +115,13 @@ module.exports = class Index
       for vertex in face
 
         params =
-          y      : vertex.y + face.diff.y
+          y      : vertex.y + 5
           delay  : i * 0.01
           ease   : Power1.easeInOut
           repeat : -1
           yoyo   : true
 
-        TweenMax.to vertex, 2, params
+        TweenMax.to vertex, 3, params
 
   update: ( time ) =>
 

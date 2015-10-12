@@ -420,7 +420,6 @@
 	  function Index() {
 	    this.update = __bind(this.update, this);
 	    this.radialWave = __bind(this.radialWave, this);
-	    this.createStarfield();
 	    this.createSpecialMesh();
 	    this.createFaceArray();
 	    this.getNewVectorPos();
@@ -464,7 +463,7 @@
 	    });
 	    mesh = new THREE.Mesh(geometry, material);
 	    matrix = new THREE.Matrix4;
-	    geometry.applyMatrix(matrix.makeTranslation(-(250 / 2), 0, -(250 / 2)));
+	    geometry.applyMatrix(matrix.makeTranslation(-(this.meshRadius / 2), 0, -(this.meshRadius / 2)));
 	    this.nebula.add(mesh);
 	    return Scene.add(this.nebula);
 	  };
@@ -526,13 +525,13 @@
 	        for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
 	          vertex = face[_j];
 	          params = {
-	            y: vertex.y + face.diff.y,
+	            y: vertex.y + 5,
 	            delay: i * 0.01,
 	            ease: Power1.easeInOut,
 	            repeat: -1,
 	            yoyo: true
 	          };
-	          _results1.push(TweenMax.to(vertex, 2, params));
+	          _results1.push(TweenMax.to(vertex, 3, params));
 	        }
 	        return _results1;
 	      })());
