@@ -454,13 +454,21 @@
 	  };
 
 	  Index.prototype.createSpecialMesh = function() {
-	    var geometry, material, matrix, mesh;
+	    var geometry, material, materialOptions, matrix, mesh, texture;
 	    this.nebula = new THREE.Object3D;
+	    texture = THREE.ImageUtils.loadTexture('images/sea-texture.jpg');
+	    texture.minFilter = THREE.LinearFilter;
+	    materialOptions = {
+	      map: texture,
+	      blending: THREE.AdditiveBlending,
+	      side: THREE.DoubleSide,
+	      transparent: false,
+	      wireframe: false,
+	      depthWrite: false,
+	      depthTest: false
+	    };
 	    geometry = new THREE.ParametricGeometry(this.radialWave, 100, 100, false);
-	    material = new THREE.MeshBasicMaterial({
-	      wireframe: true,
-	      side: THREE.DoubleSide
-	    });
+	    material = new THREE.MeshBasicMaterial(materialOptions);
 	    mesh = new THREE.Mesh(geometry, material);
 	    matrix = new THREE.Matrix4;
 	    geometry.applyMatrix(matrix.makeTranslation(-(this.meshRadius / 2), 0, -(this.meshRadius / 2)));
@@ -472,7 +480,7 @@
 	    var vector, x, y, z;
 	    x = Math.sin(u) * this.meshRadius;
 	    z = Math.sin(v) * this.meshRadius;
-	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 6 * Math.PI)) * 6;
+	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 6 * Math.PI)) * 2;
 	    vector = new THREE.Vector3(x, y, z);
 	    return vector;
 	  };
@@ -483,6 +491,9 @@
 	    _results = [];
 	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
 	      vertex = _ref[i];
+	      if (i === this.nebula.children[0].geometry.vertices.length - 1) {
+	        arr.push(vertex);
+	      }
 	      if (i % 3 === 0) {
 	        if (i !== 0) {
 	          this.faces.push(arr);
@@ -525,7 +536,7 @@
 	        for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
 	          vertex = face[_j];
 	          params = {
-	            y: vertex.y + 5,
+	            y: vertex.y + 2,
 	            delay: i * 0.01,
 	            ease: Power1.easeInOut,
 	            repeat: -1,

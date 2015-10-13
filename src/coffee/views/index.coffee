@@ -58,8 +58,20 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
+    texture           = THREE.ImageUtils.loadTexture 'images/sea-texture.jpg'
+    texture.minFilter = THREE.LinearFilter
+
+    materialOptions =
+      map         : texture
+      blending    : THREE.AdditiveBlending
+      side        : THREE.DoubleSide
+      transparent : false
+      wireframe   : false
+      depthWrite  : false
+      depthTest   : false
+
     geometry = new THREE.ParametricGeometry @radialWave, 100, 100, false
-    material = new THREE.MeshBasicMaterial wireframe: true, side: THREE.DoubleSide
+    material = new THREE.MeshBasicMaterial materialOptions
     mesh     = new THREE.Mesh geometry, material
     matrix   = new THREE.Matrix4
 
@@ -73,7 +85,7 @@ module.exports = class Index
 
     x = Math.sin( u ) * @meshRadius
     z = Math.sin( v ) * @meshRadius
-    y = ( Math.sin( u * 4 * Math.PI ) + Math.cos( v * 6 * Math.PI ) ) * 6
+    y = ( Math.sin( u * 4 * Math.PI ) + Math.cos( v * 6 * Math.PI ) ) * 2
 
     vector = new THREE.Vector3 x, y, z
     
@@ -82,6 +94,10 @@ module.exports = class Index
   createFaceArray: ->
 
     for vertex, i in @nebula.children[0].geometry.vertices
+
+      if i is @nebula.children[0].geometry.vertices.length - 1
+
+        arr.push vertex
 
       if i % 3 is 0
 
@@ -115,7 +131,7 @@ module.exports = class Index
       for vertex in face
 
         params =
-          y      : vertex.y + 5
+          y      : vertex.y + 2
           delay  : i * 0.01
           ease   : Power1.easeInOut
           repeat : -1
