@@ -414,7 +414,7 @@
 	Camera = __webpack_require__(7);
 
 	module.exports = Index = (function() {
-	  Index.prototype.particleCount = 5000;
+	  Index.prototype.particleCount = 2000;
 
 	  Index.prototype.planeCount = 15;
 
@@ -422,8 +422,21 @@
 	    this.update = __bind(this.update, this);
 	    this.createStarfield();
 	    this.createNebula();
+	    this.createSkySphere();
 	    RAF.on('tick', this.update);
 	  }
+
+	  Index.prototype.createSkySphere = function() {
+	    var geometry, material, mesh;
+	    geometry = new THREE.SphereGeometry(3000, 60, 40);
+	    material = new THREE.MeshBasicMaterial({
+	      map: THREE.ImageUtils.loadTexture('images/skydome.jpg'),
+	      depthWrite: false,
+	      side: THREE.BackSide
+	    });
+	    mesh = new THREE.Mesh(geometry, material);
+	    return Scene.add(mesh);
+	  };
 
 	  Index.prototype.createStarfield = function() {
 	    var geometry, i, material, options, particle, particles, x, y, z, _i, _ref;
@@ -481,7 +494,9 @@
 	  Index.prototype.update = function(time) {
 	    var a, plane, v1, v2, _i, _len, _ref, _results;
 	    this.starfield.rotation.y += 0.000025;
-	    this.nebula.position.y = Math.sin(time / 500);
+	    this.nebula.scale.x = 0.015 * Math.sin(time / 750) + 1;
+	    this.nebula.scale.y = 0.015 * Math.sin(time / 750) + 1;
+	    this.nebula.scale.z = 0.015 * Math.sin(time / 750) + 1;
 	    _ref = this.nebula.children;
 	    _results = [];
 	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {

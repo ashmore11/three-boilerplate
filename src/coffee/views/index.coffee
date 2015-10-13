@@ -5,15 +5,29 @@ Camera   = require 'helpers/camera'
 
 module.exports = class Index
 
-  particleCount: 5000
+  particleCount: 2000
   planeCount   : 15
 
   constructor: ->
 
     @createStarfield()
     @createNebula()
+    @createSkySphere()
 
     RAF.on 'tick', @update
+
+  createSkySphere: ->
+
+    geometry = new THREE.SphereGeometry 3000, 60, 40
+    
+    material = new THREE.MeshBasicMaterial
+      map        : THREE.ImageUtils.loadTexture 'images/skydome.jpg'
+      depthWrite : false
+      side       : THREE.BackSide
+
+    mesh = new THREE.Mesh geometry, material
+    
+    Scene.add mesh
 
   createStarfield: ->
 
@@ -85,7 +99,9 @@ module.exports = class Index
 
     @starfield.rotation.y += 0.000025
 
-    @nebula.position.y = Math.sin( time / 500 )
+    @nebula.scale.x = 0.015 * Math.sin( time / 750 ) + 1
+    @nebula.scale.y = 0.015 * Math.sin( time / 750 ) + 1
+    @nebula.scale.z = 0.015 * Math.sin( time / 750 ) + 1
 
     for plane in @nebula.children
 
