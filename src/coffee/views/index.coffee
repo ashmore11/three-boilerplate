@@ -67,8 +67,6 @@ module.exports = class Index
       side        : THREE.DoubleSide
       transparent : false
       wireframe   : false
-      depthWrite  : false
-      depthTest   : false
 
     geometry = new THREE.ParametricGeometry @radialWave, 100, 100, false
     material = new THREE.MeshBasicMaterial materialOptions

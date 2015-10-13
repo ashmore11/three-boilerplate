@@ -110,7 +110,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
-	  debug: true,
+	  debug: false,
 	  fog: false
 	};
 
@@ -371,7 +371,7 @@
 
 	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
 
-	camera.position.set(180, 45, 180);
+	camera.position.set(100, 15, 100);
 
 	camera.lookAt(new THREE.Vector3);
 
@@ -463,9 +463,7 @@
 	      blending: THREE.AdditiveBlending,
 	      side: THREE.DoubleSide,
 	      transparent: false,
-	      wireframe: false,
-	      depthWrite: false,
-	      depthTest: false
+	      wireframe: false
 	    };
 	    geometry = new THREE.ParametricGeometry(this.radialWave, 100, 100, false);
 	    material = new THREE.MeshBasicMaterial(materialOptions);
