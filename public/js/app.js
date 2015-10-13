@@ -389,7 +389,7 @@
 	module.exports = new THREE.Scene;
 
 	if (Settings.fog) {
-	  module.exports.fog = new THREE.FogExp2(0x000000, 0.005);
+	  module.exports.fog = new THREE.FogExp2(0x000000, 0.003);
 	}
 
 
@@ -421,9 +421,6 @@
 	    this.update = __bind(this.update, this);
 	    this.radialWave = __bind(this.radialWave, this);
 	    this.createSpecialMesh();
-	    this.createFaceArray();
-	    this.getNewVectorPos();
-	    this.tweenFaces();
 	    RAF.on('tick', this.update);
 	  }
 
@@ -435,10 +432,11 @@
 	    options = {
 	      map: THREE.ImageUtils.loadTexture('images/particle.png'),
 	      blending: THREE.AdditiveBlending,
-	      size: 2,
+	      size: 1,
 	      transparent: true,
 	      depthWrite: false,
-	      depthTest: false
+	      depthTest: false,
+	      fog: false
 	    };
 	    material = new THREE.PointCloudMaterial(options);
 	    for (i = _i = 0, _ref = this.particleCount; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
@@ -454,15 +452,12 @@
 	  };
 
 	  Index.prototype.createSpecialMesh = function() {
-	    var geometry, material, materialOptions, matrix, mesh, texture;
+	    var geometry, i, material, materialOptions, matrix, mesh, vertex, _i, _len, _ref;
 	    this.nebula = new THREE.Object3D;
-	    texture = THREE.ImageUtils.loadTexture('images/sea-texture.jpg');
-	    texture.minFilter = THREE.LinearFilter;
 	    materialOptions = {
-	      map: texture,
+	      map: THREE.ImageUtils.loadTexture('images/viel-nebula.jpg'),
 	      blending: THREE.AdditiveBlending,
 	      side: THREE.DoubleSide,
-	      transparent: false,
 	      wireframe: false
 	    };
 	    geometry = new THREE.ParametricGeometry(this.radialWave, 100, 100, false);
@@ -470,6 +465,12 @@
 	    mesh = new THREE.Mesh(geometry, material);
 	    matrix = new THREE.Matrix4;
 	    geometry.applyMatrix(matrix.makeTranslation(-(this.meshRadius / 2), 0, -(this.meshRadius / 2)));
+	    _ref = geometry.vertices;
+	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	      vertex = _ref[i];
+	      vertex.y += Math.random();
+	    }
+	    mesh.at = this.randomNumber(400, 500);
 	    this.nebula.add(mesh);
 	    return Scene.add(this.nebula);
 	  };
@@ -478,7 +479,7 @@
 	    var vector, x, y, z;
 	    x = Math.sin(u) * this.meshRadius;
 	    z = Math.sin(v) * this.meshRadius;
-	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 6 * Math.PI)) * 2;
+	    y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 6 * Math.PI)) * this.randomNumber(3, 6);
 	    vector = new THREE.Vector3(x, y, z);
 	    return vector;
 	  };
@@ -499,25 +500,6 @@
 	        arr = [];
 	      }
 	      _results.push(arr.push(vertex));
-	    }
-	    return _results;
-	  };
-
-	  Index.prototype.getNewVectorPos = function() {
-	    var center, cx, cy, cz, diff, face, length, _i, _len, _ref, _results;
-	    _ref = this.faces;
-	    _results = [];
-	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      face = _ref[_i];
-	      cx = (face[0].x + face[1].x + face[2].x) / 3;
-	      cy = (face[0].y + face[1].y + face[2].y) / 3;
-	      cz = (face[0].z + face[1].z + face[2].z) / 3;
-	      center = new THREE.Vector3(cx, cy, cz);
-	      diff = center.sub(this.nebula.children[0].position);
-	      length = diff.length();
-	      diff.normalize();
-	      diff.multiplyScalar(20);
-	      _results.push(face.diff = diff);
 	    }
 	    return _results;
 	  };
@@ -548,8 +530,19 @@
 	    return _results;
 	  };
 
+	  Index.prototype.randomNumber = function(min, max) {
+	    return (Math.random() * (max - min + 1)) + min;
+	  };
+
 	  Index.prototype.update = function(time) {
-	    return this.nebula.children[0].geometry.verticesNeedUpdate = true;
+	    var plane, _i, _len, _ref, _results;
+	    _ref = this.nebula.children;
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      plane = _ref[_i];
+	      _results.push(plane.geometry.verticesNeedUpdate = true);
+	    }
+	    return _results;
 	  };
 
 	  return Index;

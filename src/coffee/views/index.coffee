@@ -14,9 +14,8 @@ module.exports = class Index
 
     # @createStarfield()
     @createSpecialMesh()
-    @createFaceArray()
-    @getNewVectorPos()
-    @tweenFaces()
+    # @createFaceArray()
+    # @tweenFaces()
 
     RAF.on 'tick', @update
 
@@ -31,10 +30,11 @@ module.exports = class Index
     options =
       map         : THREE.ImageUtils.loadTexture 'images/particle.png'
       blending    : THREE.AdditiveBlending
-      size        : 2
+      size        : 1
       transparent : true
       depthWrite  : false
       depthTest   : false
+      fog         : false
 
     material = new THREE.PointCloudMaterial options
 
@@ -58,14 +58,10 @@ module.exports = class Index
 
     @nebula = new THREE.Object3D
 
-    texture           = THREE.ImageUtils.loadTexture 'images/sea-texture.jpg'
-    texture.minFilter = THREE.LinearFilter
-
     materialOptions =
-      map         : texture
+      map         : THREE.ImageUtils.loadTexture 'images/viel-nebula.jpg'
       blending    : THREE.AdditiveBlending
       side        : THREE.DoubleSide
-      transparent : false
       wireframe   : false
 
     geometry = new THREE.ParametricGeometry @radialWave, 100, 100, false
@@ -75,6 +71,12 @@ module.exports = class Index
 
     geometry.applyMatrix matrix.makeTranslation -( @meshRadius / 2 ), 0, -( @meshRadius / 2 )
 
+    for vertex, i in geometry.vertices
+
+      vertex.y += Math.random()
+
+    mesh.at = @randomNumber 400, 500
+
     @nebula.add mesh
     
     Scene.add @nebula
@@ -83,7 +85,7 @@ module.exports = class Index
 
     x = Math.sin( u ) * @meshRadius
     z = Math.sin( v ) * @meshRadius
-    y = ( Math.sin( u * 4 * Math.PI ) + Math.cos( v * 6 * Math.PI ) ) * 2
+    y = ( Math.sin( u * 4 * Math.PI ) + Math.cos( v * 6 * Math.PI ) ) * @randomNumber( 3, 6 )
 
     vector = new THREE.Vector3 x, y, z
     
@@ -105,23 +107,6 @@ module.exports = class Index
 
       arr.push vertex
 
-  getNewVectorPos: ->
-
-    for face in @faces
-
-      cx = ( face[0].x + face[1].x + face[2].x ) / 3
-      cy = ( face[0].y + face[1].y + face[2].y ) / 3
-      cz = ( face[0].z + face[1].z + face[2].z ) / 3
-
-      center = new THREE.Vector3 cx, cy, cz
-      diff   = center.sub @nebula.children[0].position
-      length = diff.length()
-
-      diff.normalize()
-      diff.multiplyScalar 20
-
-      face.diff = diff
-
   tweenFaces: ->
 
     for face, i in @faces
@@ -137,7 +122,17 @@ module.exports = class Index
 
         TweenMax.to vertex, 3, params
 
+  randomNumber: ( min, max ) ->
+
+    return ( Math.random() * ( max - min + 1 ) ) + min
+
   update: ( time ) =>
 
-    @nebula.children[0].geometry.verticesNeedUpdate = true
+    for plane in @nebula.children
+      
+      plane.geometry.verticesNeedUpdate = true
+
+      # for vertex in plane.geometry.vertices
+
+      #   vertex.y += 0.1 * Math.sin( time / plane.at )
 
