@@ -1,4 +1,4 @@
-# THREE BOILERPLATE
+# Three Boilerplate
 
 Removes the boring process of getting a basic webgl scene setup so you can start coding immediately
 
