@@ -11,8 +11,8 @@ development = process.env.NODE_ENV is 'development'
 base_path   = process.env.PWD
 
 exports.paths =
-	source      : './src/coffee/app.coffee'
-	watch       : './src/**/*.coffee'
+	source      : './src/scripts/app.js'
+	watch       : './src/**/*.js'
 	destination : './public/js/'
 	filename    : 'app.js'
 

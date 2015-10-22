@@ -44,109 +44,164 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var APP, Camera, Controls, RAF, Renderer, Scene, Settings, View, win,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	'use strict';
 
-	Settings = __webpack_require__(1);
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
-	win = __webpack_require__(2);
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	RAF = __webpack_require__(4);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	Renderer = __webpack_require__(5);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	Controls = __webpack_require__(6);
+	var _settings = __webpack_require__(1);
 
-	Camera = __webpack_require__(7);
+	var _settings2 = _interopRequireDefault(_settings);
 
-	Scene = __webpack_require__(8);
+	var _utilsWindow = __webpack_require__(2);
 
-	View = __webpack_require__(9);
+	var _utilsWindow2 = _interopRequireDefault(_utilsWindow);
 
-	APP = (function() {
+	var _utilsRaf = __webpack_require__(4);
+
+	var _utilsRaf2 = _interopRequireDefault(_utilsRaf);
+
+	var _helpersRenderer = __webpack_require__(5);
+
+	var _helpersRenderer2 = _interopRequireDefault(_helpersRenderer);
+
+	var _helpersControls = __webpack_require__(6);
+
+	var _helpersControls2 = _interopRequireDefault(_helpersControls);
+
+	var _helpersCamera = __webpack_require__(7);
+
+	var _helpersCamera2 = _interopRequireDefault(_helpersCamera);
+
+	var _helpersScene = __webpack_require__(8);
+
+	var _helpersScene2 = _interopRequireDefault(_helpersScene);
+
+	var _viewsIndex = __webpack_require__(9);
+
+	var _viewsIndex2 = _interopRequireDefault(_viewsIndex);
+
+	var APP = (function () {
 	  function APP() {
-	    this.resize = __bind(this.resize, this);
-	    this.update = __bind(this.update, this);
-	    var light;
-	    if (Settings.debug) {
-	      Scene.add(new THREE.GridHelper(50, 10));
-	      Scene.add(new THREE.AxisHelper(60));
+	    _classCallCheck(this, APP);
+
+	    if (_settings2['default'].debug) {
+	      _helpersScene2['default'].add(new THREE.GridHelper(50, 10));
+	      _helpersScene2['default'].add(new THREE.AxisHelper(60));
 	    }
-	    light = new THREE.SpotLight(0xffffff);
-	    light.position.set(-200, 200, 0);
-	    Scene.add(light);
-	    this.view = new View;
-	    RAF.on('tick', this.update);
-	    win.on('resize', this.resize);
+
+	    _utilsRaf2['default'].on('tick', this.update);
+	    _utilsWindow2['default'].on('resize', this.resize);
+
+	    this.view = new _viewsIndex2['default']();
 	  }
 
-	  APP.prototype.update = function() {
-	    Renderer.setViewport(0, 0, win.width, win.height);
-	    Renderer.setScissor(0, 0, win.width, win.height);
-	    Renderer.enableScissorTest(true);
-	    Renderer.render(Scene, Camera);
-	    Camera.updateProjectionMatrix();
-	    return Controls.update();
-	  };
+	  _createClass(APP, [{
+	    key: 'update',
+	    value: function update() {
 
-	  APP.prototype.resize = function() {
-	    Renderer.setSize(win.width, win.height);
-	    Camera.aspect = win.width / win.height;
-	    return Camera.updateProjectionMatrix();
-	  };
+	      _helpersRenderer2['default'].setViewport(0, 0, _utilsWindow2['default'].width, _utilsWindow2['default'].height);
+	      _helpersRenderer2['default'].setScissor(0, 0, _utilsWindow2['default'].width, _utilsWindow2['default'].height);
+	      _helpersRenderer2['default'].enableScissorTest(true);
+	      _helpersRenderer2['default'].render(_helpersScene2['default'], _helpersCamera2['default']);
+
+	      _helpersCamera2['default'].updateProjectionMatrix();
+
+	      _helpersControls2['default'].update();
+	    }
+	  }, {
+	    key: 'resize',
+	    value: function resize() {
+
+	      _helpersRenderer2['default'].setSize(_utilsWindow2['default'].width, _utilsWindow2['default'].height);
+
+	      _helpersCamera2['default'].aspect = _utilsWindow2['default'].width / _utilsWindow2['default'].height;
+
+	      _helpersCamera2['default'].updateProjectionMatrix();
+	    }
+	  }]);
 
 	  return APP;
-
 	})();
 
-	module.exports = new APP;
-
+	exports['default'] = new APP();
+	module.exports = exports['default'];
 
 /***/ },
 /* 1 */
 /***/ function(module, exports) {
 
-	module.exports = {
-	  debug: false,
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var settings = {
+	  debug: true,
 	  fog: true
 	};
 
+	exports["default"] = settings;
+	module.exports = exports["default"];
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Window, happens,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	'use strict';
 
-	happens = __webpack_require__(3);
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
 
-	Window = (function() {
-	  Window.prototype.window = $(window);
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	  Window.prototype.width = 0;
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	  Window.prototype.height = 0;
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	  function Window() {
-	    this.resize = __bind(this.resize, this);
-	    happens(this);
-	    this.window.on('resize', this.resize);
-	    this.resize();
-	  }
+	var _happens = __webpack_require__(3);
 
-	  Window.prototype.resize = function() {
-	    this.width = this.window.width();
-	    this.height = this.window.height();
-	    return this.emit('resize');
-	  };
+	var _happens2 = _interopRequireDefault(_happens);
 
-	  return Window;
+	var Window = (function () {
+		function Window() {
+			_classCallCheck(this, Window);
 
+			(0, _happens2['default'])(this);
+
+			this.window = $(window);
+			this.width = 0;
+			this.height = 0;
+
+			this.window.on('resize', this.resize);
+
+			this.resize();
+		}
+
+		_createClass(Window, [{
+			key: 'resize',
+			value: function resize() {
+
+				this.width = this.window.width();
+				this.height = this.window.height();
+
+				this.emit('resize');
+			}
+		}]);
+
+		return Window;
 	})();
 
-	module.exports = new Window;
-
+	exports['default'] = new Window();
+	module.exports = exports['default'];
 
 /***/ },
 /* 3 */
@@ -244,624 +299,253 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var RAF, happens,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	"use strict";
 
-	happens = __webpack_require__(3);
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
 
-	(function() {
-	  var lastTime, vendors, x;
-	  lastTime = 0;
-	  vendors = ["ms", "moz", "o"];
-	  x = 0;
-	  while (x < vendors.length && !window.requestAnimationFrame) {
-	    window.requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
-	    window.cancelAnimationFrame = window[vendors[x] + "CancelAnimationFrame"] || window[vendors[x] + "CancelRequestAnimationFrame"];
-	    ++x;
-	  }
-	  if (!window.requestAnimationFrame) {
-	    window.requestAnimationFrame = function(callback, element) {
-	      var currTime, id, timeToCall;
-	      currTime = new Date().getTime();
-	      timeToCall = Math.max(0, 16 - (currTime - lastTime));
-	      id = window.setTimeout(function() {
-	        return callback(currTime + timeToCall);
-	      }, timeToCall);
-	      lastTime = currTime + timeToCall;
-	      return id;
-	    };
-	  }
-	  if (!window.cancelAnimationFrame) {
-	    return window.cancelAnimationFrame = function(id) {
-	      return clearTimeout(id);
-	    };
-	  }
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _happens = __webpack_require__(3);
+
+	var _happens2 = _interopRequireDefault(_happens);
+
+	(function () {
+
+		var lastTime = 0;
+		var vendors = ["ms", "moz", "o"];
+		var x = 0;
+
+		while (x < vendors.length && !window.requestAnimationFrame) {
+
+			window.requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
+			window.cancelAnimationFrame = window[vendors[x] + "CancelAnimationFrame"] || window[vendors[x] + "CancelRequestAnimationFrame"];
+
+			++x;
+		}
+
+		if (!window.requestAnimationFrame) {
+
+			window.requestAnimationFrame = function (callback, element) {
+
+				var currTime = new Date().getTime();
+				var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+
+				var id = window.setTimeout(function () {
+
+					callback(currTime + timeToCall);
+				}, timeToCall);
+
+				lastTime = currTime + timeToCall;
+
+				return id;
+			};
+		}
+
+		if (!window.cancelAnimationFrame) {
+
+			window.cancelAnimationFrame = function (id) {
+				return clearTimeout(id);
+			};
+		}
 	})();
 
-	RAF = (function() {
-	  RAF.prototype.id_animloop = null;
+	var RAF = (function () {
+		function RAF() {
+			_classCallCheck(this, RAF);
 
-	  function RAF() {
-	    this.animloop = __bind(this.animloop, this);
-	    happens(this);
-	    this.start();
-	  }
+			(0, _happens2["default"])(this);
 
-	  RAF.prototype.start = function() {
-	    return this.id_animloop = window.requestAnimationFrame(this.animloop);
-	  };
+			this.id_animloop = null;
 
-	  RAF.prototype.stop = function() {
-	    window.cancelAnimationFrame(this.id_animloop);
-	    return this.id_animloop = null;
-	  };
+			this.start();
+		}
 
-	  RAF.prototype.animloop = function(time) {
-	    this.id_animloop = window.requestAnimationFrame(this.animloop);
-	    return this.emit('tick', time);
-	  };
+		_createClass(RAF, [{
+			key: "start",
+			value: function start() {
 
-	  return RAF;
+				this.id_animloop = window.requestAnimationFrame(this.animloop.bind(this));
+			}
+		}, {
+			key: "stop",
+			value: function stop() {
 
+				window.cancelAnimationFrame(this.id_animloop.bind(this));
+
+				this.id_animloop = null;
+			}
+		}, {
+			key: "animloop",
+			value: function animloop(time) {
+
+				this.id_animloop = window.requestAnimationFrame(this.animloop.bind(this));
+
+				this.emit('tick', time);
+			}
+		}]);
+
+		return RAF;
 	})();
 
-	module.exports = new RAF;
-
+	exports["default"] = new RAF();
+	module.exports = exports["default"];
 
 /***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var renderer, win;
+	'use strict';
 
-	win = __webpack_require__(2);
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
-	renderer = new THREE.WebGLRenderer({
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _utilsWindow = __webpack_require__(2);
+
+	var _utilsWindow2 = _interopRequireDefault(_utilsWindow);
+
+	var renderer = new THREE.WebGLRenderer({
 	  antialias: true
 	});
 
-	renderer.setSize(win.width, win.height);
-
+	renderer.setSize(_utilsWindow2['default'].width, _utilsWindow2['default'].height);
 	renderer.setClearColor("#ffffff");
 
 	renderer.shadowMapEnabled = true;
 
 	$('main').append(renderer.domElement);
 
-	module.exports = renderer;
-
+	exports['default'] = renderer;
+	module.exports = exports['default'];
 
 /***/ },
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Camera, controls;
+	'use strict';
 
-	Camera = __webpack_require__(7);
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
-	controls = new THREE.TrackballControls(Camera, $('canvas')[0]);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _helpersCamera = __webpack_require__(7);
+
+	var _helpersCamera2 = _interopRequireDefault(_helpersCamera);
+
+	var controls = new THREE.TrackballControls(_helpersCamera2['default'], $('canvas')[0]);
 
 	controls.rotateSpeed = 1.0;
-
 	controls.zoomSpeed = 1.2;
-
 	controls.panSpeed = 0.8;
-
 	controls.noZoom = false;
-
 	controls.noPan = false;
-
 	controls.staticMoving = true;
-
 	controls.dynamicDampingFactor = 0.5;
 
-	module.exports = controls;
-
+	exports['default'] = controls;
+	module.exports = exports['default'];
 
 /***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var camera, win;
+	'use strict';
 
-	win = __webpack_require__(2);
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
-	camera = new THREE.PerspectiveCamera(65, win.width / win.height, 0.1, 10000);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _utilsWindow = __webpack_require__(2);
+
+	var _utilsWindow2 = _interopRequireDefault(_utilsWindow);
+
+	var camera = new THREE.PerspectiveCamera(65, _utilsWindow2['default'].width / _utilsWindow2['default'].height, 0.1, 10000);
 
 	camera.position.set(60, 45, 60);
+	camera.lookAt(new THREE.Vector3());
 
-	camera.lookAt(new THREE.Vector3);
-
-	module.exports = camera;
-
+	exports['default'] = camera;
+	module.exports = exports['default'];
 
 /***/ },
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Settings;
+	"use strict";
 
-	Settings = __webpack_require__(1);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var scene = new THREE.Scene();
 
-	module.exports = new THREE.Scene;
-
-	if (Settings.fog) {
-	  module.exports.fog = new THREE.FogExp2(0xffffff, 0.005);
-	}
-
+	exports["default"] = scene;
+	module.exports = exports["default"];
 
 /***/ },
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Index, RAF, Scene, Settings, randomColor,
-	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	'use strict';
 
-	Settings = __webpack_require__(1);
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
-	RAF = __webpack_require__(4);
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	Scene = __webpack_require__(8);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	randomColor = __webpack_require__(10);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	module.exports = Index = (function() {
-	  Index.prototype.count = 20;
+	var _utilsRaf = __webpack_require__(4);
 
-	  Index.prototype.radius = 10;
+	var _utilsRaf2 = _interopRequireDefault(_utilsRaf);
 
+	var _helpersScene = __webpack_require__(8);
+
+	var _helpersScene2 = _interopRequireDefault(_helpersScene);
+
+	var Index = (function () {
 	  function Index() {
-	    this.update = __bind(this.update, this);
-	    var balls, center, geometry, i, material, sphere, _i, _j, _ref;
-	    this.group = new THREE.Object3D;
-	    for (i = _i = 0; _i < 20; i = ++_i) {
-	      balls = new THREE.Object3D;
-	      balls.position.x = (i * 30) - 500;
-	      for (i = _j = 0, _ref = this.count; 0 <= _ref ? _j < _ref : _j > _ref; i = 0 <= _ref ? ++_j : --_j) {
-	        geometry = new THREE.OctahedronGeometry(10, 0);
-	        material = new THREE.MeshPhongMaterial({
-	          color: randomColor({
-	            luminosity: 'light'
-	          }),
-	          wireframe: true
-	        });
-	        sphere = new THREE.Mesh(geometry, material);
-	        center = i * (this.radius * 2) - (this.count * this.radius) + this.radius;
-	        sphere.position.set(0, center * 1.5, 0);
-	        balls.add(sphere);
-	      }
-	      this.group.add(balls);
-	    }
-	    Scene.add(this.group);
-	    RAF.on('tick', this.update);
+	    _classCallCheck(this, Index);
+
+	    _utilsRaf2['default'].on('tick', this.update);
+
+	    var geometry = new THREE.SphereGeometry(10, 16, 16);
+	    var material = new THREE.MeshBasicMaterial({
+	      color: 0x000000,
+	      wireframe: true
+	    });
+
+	    var mesh = new THREE.Mesh(geometry, material);
+
+	    _helpersScene2['default'].add(mesh);
 	  }
 
-	  Index.prototype.update = function(time) {
-	    var balls, scale, sphere, _i, _len, _ref, _results;
-	    _ref = this.group.children;
-	    _results = [];
-	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      balls = _ref[_i];
-	      _results.push((function() {
-	        var _j, _len1, _ref1, _results1;
-	        _ref1 = balls.children;
-	        _results1 = [];
-	        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-	          sphere = _ref1[_j];
-	          sphere.rotation.x = Math.sin(time / 500);
-	          sphere.rotation.y = Math.sin(time / 500);
-	          sphere.rotation.z = Math.sin(time / 500);
-	          scale = 0.25 * Math.sin(time / 500) + 1.25;
-	          _results1.push(sphere.scale.set(scale, scale, scale));
-	        }
-	        return _results1;
-	      })());
+	  _createClass(Index, [{
+	    key: 'update',
+	    value: function update(time) {
+	      //
 	    }
-	    return _results;
-	  };
+	  }]);
 
 	  return Index;
-
 	})();
 
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// randomColor by David Merfield under the MIT license
-	// https://github.com/davidmerfield/randomColor/
-
-	;(function(root, factory) {
-
-	  // Support AMD
-	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-	  // Support CommonJS
-	  } else if (typeof exports === 'object') {
-	    var randomColor = factory();
-	    
-	    // Support NodeJS & Component, which allow module.exports to be a function
-	    if (typeof module === 'object' && module && module.exports) {
-	      exports = module.exports = randomColor;
-	    }
-	    
-	    // Support CommonJS 1.1.1 spec
-	    exports.randomColor = randomColor;
-	  
-	  // Support vanilla script loading
-	  } else {
-	    root.randomColor = factory();
-	  };
-
-	}(this, function() {
-
-	  // Seed to get repeatable colors
-	  var seed = null;
-
-	  // Shared color dictionary
-	  var colorDictionary = {};
-
-	  // Populate the color dictionary
-	  loadColorBounds();
-
-	  var randomColor = function(options) {
-	    options = options || {};
-	    if (options.seed && !seed) seed = options.seed;
-
-	    var H,S,B;
-
-	    // Check if we need to generate multiple colors
-	    if (options.count != null) {
-
-	      var totalColors = options.count,
-	          colors = [];
-
-	      options.count = null;
-
-	      while (totalColors > colors.length) {
-	        colors.push(randomColor(options));
-	      }
-
-	      options.count = totalColors;
-
-	      //Keep the seed constant between runs. 
-	      if (options.seed) seed = options.seed;
-	      
-	      return colors;
-	    }
-
-	    // First we pick a hue (H)
-	    H = pickHue(options);
-
-	    // Then use H to determine saturation (S)
-	    S = pickSaturation(H, options);
-
-	    // Then use S and H to determine brightness (B).
-	    B = pickBrightness(H, S, options);
-
-	    // Then we return the HSB color in the desired format
-	    return setFormat([H,S,B], options);
-	  };
-
-	  function pickHue (options) {
-
-	    var hueRange = getHueRange(options.hue),
-	        hue = randomWithin(hueRange);
-
-	    // Instead of storing red as two seperate ranges,
-	    // we group them, using negative numbers
-	    if (hue < 0) {hue = 360 + hue}
-
-	    return hue;
-
-	  }
-
-	  function pickSaturation (hue, options) {
-
-	    if (options.luminosity === 'random') {
-	      return randomWithin([0,100]);
-	    }
-
-	    if (options.hue === 'monochrome') {
-	      return 0;
-	    }
-
-	    var saturationRange = getSaturationRange(hue);
-
-	    var sMin = saturationRange[0],
-	        sMax = saturationRange[1];
-
-	    switch (options.luminosity) {
-
-	      case 'bright':
-	        sMin = 55;
-	        break;
-
-	      case 'dark':
-	        sMin = sMax - 10;
-	        break;
-
-	      case 'light':
-	        sMax = 55;
-	        break;
-	   }
-
-	    return randomWithin([sMin, sMax]);
-
-	  }
-
-	  function pickBrightness (H, S, options) {
-
-	    var brightness,
-	        bMin = getMinimumBrightness(H, S),
-	        bMax = 100;
-
-	    switch (options.luminosity) {
-
-	      case 'dark':
-	        bMax = bMin + 20;
-	        break;
-
-	      case 'light':
-	        bMin = (bMax + bMin)/2;
-	        break;
-
-	      case 'random':
-	        bMin = 0;
-	        bMax = 100;
-	        break;
-	    }
-
-	    return randomWithin([bMin, bMax]);
-
-	  }
-
-	  function setFormat (hsv, options) {
-
-	    switch (options.format) {
-
-	      case 'hsvArray':
-	        return hsv;
-
-	      case 'hslArray':
-	        return HSVtoHSL(hsv);
-
-	      case 'hsl':
-	        var hsl = HSVtoHSL(hsv);
-	        return 'hsl('+hsl[0]+', '+hsl[1]+'%, '+hsl[2]+'%)';
-
-	      case 'rgbArray':
-	        return HSVtoRGB(hsv);
-
-	      case 'rgb':
-	        var rgb = HSVtoRGB(hsv);
-	        return 'rgb(' + rgb.join(', ') + ')';
-
-	      default:
-	        return HSVtoHex(hsv);
-	    }
-
-	  }
-
-	  function getMinimumBrightness(H, S) {
-
-	    var lowerBounds = getColorInfo(H).lowerBounds;
-
-	    for (var i = 0; i < lowerBounds.length - 1; i++) {
-
-	      var s1 = lowerBounds[i][0],
-	          v1 = lowerBounds[i][1];
-
-	      var s2 = lowerBounds[i+1][0],
-	          v2 = lowerBounds[i+1][1];
-
-	      if (S >= s1 && S <= s2) {
-
-	         var m = (v2 - v1)/(s2 - s1),
-	             b = v1 - m*s1;
-
-	         return m*S + b;
-	      }
-
-	    }
-
-	    return 0;
-	  }
-
-	  function getHueRange (colorInput) {
-
-	    if (typeof parseInt(colorInput) === 'number') {
-
-	      var number = parseInt(colorInput);
-
-	      if (number < 360 && number > 0) {
-	        return [number, number];
-	      }
-
-	    }
-
-	    if (typeof colorInput === 'string') {
-
-	      if (colorDictionary[colorInput]) {
-	        var color = colorDictionary[colorInput];
-	        if (color.hueRange) {return color.hueRange}
-	      }
-	    }
-
-	    return [0,360];
-
-	  }
-
-	  function getSaturationRange (hue) {
-	    return getColorInfo(hue).saturationRange;
-	  }
-
-	  function getColorInfo (hue) {
-
-	    // Maps red colors to make picking hue easier
-	    if (hue >= 334 && hue <= 360) {
-	      hue-= 360;
-	    }
-
-	    for (var colorName in colorDictionary) {
-	       var color = colorDictionary[colorName];
-	       if (color.hueRange &&
-	           hue >= color.hueRange[0] &&
-	           hue <= color.hueRange[1]) {
-	          return colorDictionary[colorName];
-	       }
-	    } return 'Color not found';
-	  }
-
-	  function randomWithin (range) {
-	    if (seed == null) {
-	      return Math.floor(range[0] + Math.random()*(range[1] + 1 - range[0]));
-	    } else {
-	      //Seeded random algorithm from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
-	      var max = range[1] || 1;
-	      var min = range[0] || 0;
-	      seed = (seed * 9301 + 49297) % 233280;
-	      var rnd = seed / 233280.0;
-	      return Math.floor(min + rnd * (max - min));
-	    }
-	  }
-
-	  function HSVtoHex (hsv){
-
-	    var rgb = HSVtoRGB(hsv);
-
-	    function componentToHex(c) {
-	        var hex = c.toString(16);
-	        return hex.length == 1 ? "0" + hex : hex;
-	    }
-
-	    var hex = "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
-
-	    return hex;
-
-	  }
-
-	  function defineColor (name, hueRange, lowerBounds) {
-
-	    var sMin = lowerBounds[0][0],
-	        sMax = lowerBounds[lowerBounds.length - 1][0],
-
-	        bMin = lowerBounds[lowerBounds.length - 1][1],
-	        bMax = lowerBounds[0][1];
-
-	    colorDictionary[name] = {
-	      hueRange: hueRange,
-	      lowerBounds: lowerBounds,
-	      saturationRange: [sMin, sMax],
-	      brightnessRange: [bMin, bMax]
-	    };
-
-	  }
-
-	  function loadColorBounds () {
-
-	    defineColor(
-	      'monochrome',
-	      null,
-	      [[0,0],[100,0]]
-	    );
-
-	    defineColor(
-	      'red',
-	      [-26,18],
-	      [[20,100],[30,92],[40,89],[50,85],[60,78],[70,70],[80,60],[90,55],[100,50]]
-	    );
-
-	    defineColor(
-	      'orange',
-	      [19,46],
-	      [[20,100],[30,93],[40,88],[50,86],[60,85],[70,70],[100,70]]
-	    );
-
-	    defineColor(
-	      'yellow',
-	      [47,62],
-	      [[25,100],[40,94],[50,89],[60,86],[70,84],[80,82],[90,80],[100,75]]
-	    );
-
-	    defineColor(
-	      'green',
-	      [63,178],
-	      [[30,100],[40,90],[50,85],[60,81],[70,74],[80,64],[90,50],[100,40]]
-	    );
-
-	    defineColor(
-	      'blue',
-	      [179, 257],
-	      [[20,100],[30,86],[40,80],[50,74],[60,60],[70,52],[80,44],[90,39],[100,35]]
-	    );
-
-	    defineColor(
-	      'purple',
-	      [258, 282],
-	      [[20,100],[30,87],[40,79],[50,70],[60,65],[70,59],[80,52],[90,45],[100,42]]
-	    );
-
-	    defineColor(
-	      'pink',
-	      [283, 334],
-	      [[20,100],[30,90],[40,86],[60,84],[80,80],[90,75],[100,73]]
-	    );
-
-	  }
-
-	  function HSVtoRGB (hsv) {
-
-	    // this doesn't work for the values of 0 and 360
-	    // here's the hacky fix
-	    var h = hsv[0];
-	    if (h === 0) {h = 1}
-	    if (h === 360) {h = 359}
-
-	    // Rebase the h,s,v values
-	    h = h/360;
-	    var s = hsv[1]/100,
-	        v = hsv[2]/100;
-
-	    var h_i = Math.floor(h*6),
-	      f = h * 6 - h_i,
-	      p = v * (1 - s),
-	      q = v * (1 - f*s),
-	      t = v * (1 - (1 - f)*s),
-	      r = 256,
-	      g = 256,
-	      b = 256;
-
-	    switch(h_i) {
-	      case 0: r = v, g = t, b = p;  break;
-	      case 1: r = q, g = v, b = p;  break;
-	      case 2: r = p, g = v, b = t;  break;
-	      case 3: r = p, g = q, b = v;  break;
-	      case 4: r = t, g = p, b = v;  break;
-	      case 5: r = v, g = p, b = q;  break;
-	    }
-	    var result = [Math.floor(r*255), Math.floor(g*255), Math.floor(b*255)];
-	    return result;
-	  }
-
-	  function HSVtoHSL (hsv) {
-	    var h = hsv[0],
-	      s = hsv[1]/100,
-	      v = hsv[2]/100,
-	      k = (2-s)*v;
-
-	    return [
-	      h,
-	      Math.round(s*v / (k<1 ? k : 2-k) * 10000) / 100,
-	      k/2 * 100
-	    ];
-	  }
-
-	  return randomColor;
-	}));
-
+	exports['default'] = Index;
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);

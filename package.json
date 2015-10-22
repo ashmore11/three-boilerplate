@@ -13,11 +13,14 @@
     "stats-js": "^1.0.0-alpha1"
   },
   "devDependencies": {
+    "babel-core": "^5.8.25",
+    "babel-loader": "^5.3.2",
     "coffee-loader": "^0.7.2",
     "coffee-script": "1.8.0",
     "ecstatic": "~0.5.3",
     "gulp": "latest",
     "gulp-autoprefixer": "0.0.7",
+    "gulp-babel": "^5.3.0",
     "gulp-concat": "^2.4.1",
     "gulp-if": "^1.2.5",
     "gulp-livereload": "~2.1.0",
@@ -32,6 +35,7 @@
     "nib": "^1.0.4",
     "require-dir": "^0.1.0",
     "rupture": "^0.6.1",
-    "stylus": "^0.49.2"
+    "stylus": "^0.49.2",
+    "webpack": "^1.12.2"
   }
 }
