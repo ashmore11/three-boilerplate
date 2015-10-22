@@ -1,4 +1,4 @@
-import happens from 'happens';
+import Happens from 'happens';
 
 (function() {
 
@@ -48,7 +48,7 @@ class RAF {
 
 	constructor() {
 
-		happens(this);
+		Happens(this);
 
 		this.id_animloop = null;
 

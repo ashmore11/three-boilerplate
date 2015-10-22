@@ -1,5 +1,5 @@
 import Settings from 'settings';
-import win      from 'utils/window';
+import Win      from 'utils/window';
 import RAF      from 'utils/raf';
 import Renderer from 'helpers/renderer';
 import Controls from 'helpers/controls';
@@ -17,7 +17,7 @@ class APP {
     }
 
     RAF.on('tick', this.update);
-    win.on('resize', this.resize);
+    Win.on('resize', this.resize);
 
     this.view = new View;
 
@@ -25,8 +25,8 @@ class APP {
 
   update() {
 
-    Renderer.setViewport(0, 0, win.width, win.height);
-    Renderer.setScissor(0, 0, win.width, win.height);
+    Renderer.setViewport(0, 0, Win.width, Win.height);
+    Renderer.setScissor(0, 0, Win.width, Win.height);
     Renderer.enableScissorTest(true);
     Renderer.render(Scene, Camera);
 
@@ -38,9 +38,9 @@ class APP {
 
   resize() {
 
-    Renderer.setSize(win.width, win.height);
+    Renderer.setSize(Win.width, Win.height);
 
-    Camera.aspect = win.width / win.height;
+    Camera.aspect = Win.width / Win.height;
     
     Camera.updateProjectionMatrix();
 
@@ -48,4 +48,4 @@ class APP {
 
 }
 
-export default new APP();
+let app = new APP();

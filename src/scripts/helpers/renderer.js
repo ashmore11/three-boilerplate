@@ -1,14 +1,15 @@
-import win from 'utils/window';
+import Settings from 'settings';
+import Win      from 'utils/window';
 
-const renderer = new THREE.WebGLRenderer({
-  antialias: true
+const Renderer = new THREE.WebGLRenderer({
+  antialias: Settings.antialias
 });
 
-renderer.setSize(win.width, win.height);
-renderer.setClearColor("#ffffff");
+Renderer.setSize(Win.width, Win.height);
+Renderer.setClearColor(Settings.renderColor);
 
-renderer.shadowMapEnabled = true;
+Renderer.shadowMapEnabled = true;
 
-$('main').append(renderer.domElement);
+$('main').append(Renderer.domElement);
 
-export default renderer;
+export default Renderer;

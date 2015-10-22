@@ -1,10 +1,10 @@
-import happens from 'happens';
+import Happens from 'happens';
 
 class Mouse {
 
 	constructor() {
 
-		happens(this);
+		Happens(this);
 
     this.doc = $(document);
     this.x   = 0;

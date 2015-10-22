@@ -1,3 +1,3 @@
-const scene = new THREE.Scene();
+const Scene = new THREE.Scene();
 
-export default scene
+export default Scene

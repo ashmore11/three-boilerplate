@@ -1,10 +1,10 @@
-import happens from 'happens';
+import Happens from 'happens';
 
 class Window {
 
 	constructor() {
 
-		happens(this);
+		Happens(this);
 
 		this.window = $(window);
 		this.width  = 0;
