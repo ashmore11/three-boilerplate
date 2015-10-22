@@ -59,10 +59,10 @@ module.exports = class Index
     @nebula = new THREE.Object3D
 
     materialOptions =
-      map         : THREE.ImageUtils.loadTexture 'images/viel-nebula.jpg'
-      blending    : THREE.AdditiveBlending
+      # map         : THREE.ImageUtils.loadTexture 'images/viel-nebula.jpg'
+      # blending    : THREE.AdditiveBlending
       side        : THREE.DoubleSide
-      wireframe   : false
+      wireframe   : true
 
     geometry = new THREE.ParametricGeometry @radialWave, 100, 100, false
     material = new THREE.MeshBasicMaterial materialOptions
@@ -70,12 +70,6 @@ module.exports = class Index
     matrix   = new THREE.Matrix4
 
     geometry.applyMatrix matrix.makeTranslation -( @meshRadius / 2 ), 0, -( @meshRadius / 2 )
-
-    for vertex, i in geometry.vertices
-
-      vertex.y += Math.random()
-
-    mesh.at = @randomNumber 400, 500
 
     @nebula.add mesh
     
@@ -114,7 +108,8 @@ module.exports = class Index
       for vertex in face
 
         params =
-          y      : vertex.y + 2
+          x      : vertex.x + 0.5
+          z      : vertex.x + 0.5
           delay  : i * 0.01
           ease   : Power1.easeInOut
           repeat : -1
@@ -134,5 +129,5 @@ module.exports = class Index
 
       # for vertex in plane.geometry.vertices
 
-      #   vertex.y += 0.1 * Math.sin( time / plane.at )
+      #   vertex.y = vertex.at
 

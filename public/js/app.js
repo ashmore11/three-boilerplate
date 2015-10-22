@@ -452,25 +452,17 @@
 	  };
 
 	  Index.prototype.createSpecialMesh = function() {
-	    var geometry, i, material, materialOptions, matrix, mesh, vertex, _i, _len, _ref;
+	    var geometry, material, materialOptions, matrix, mesh;
 	    this.nebula = new THREE.Object3D;
 	    materialOptions = {
-	      map: THREE.ImageUtils.loadTexture('images/viel-nebula.jpg'),
-	      blending: THREE.AdditiveBlending,
 	      side: THREE.DoubleSide,
-	      wireframe: false
+	      wireframe: true
 	    };
 	    geometry = new THREE.ParametricGeometry(this.radialWave, 100, 100, false);
 	    material = new THREE.MeshBasicMaterial(materialOptions);
 	    mesh = new THREE.Mesh(geometry, material);
 	    matrix = new THREE.Matrix4;
 	    geometry.applyMatrix(matrix.makeTranslation(-(this.meshRadius / 2), 0, -(this.meshRadius / 2)));
-	    _ref = geometry.vertices;
-	    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-	      vertex = _ref[i];
-	      vertex.y += Math.random();
-	    }
-	    mesh.at = this.randomNumber(400, 500);
 	    this.nebula.add(mesh);
 	    return Scene.add(this.nebula);
 	  };
@@ -516,7 +508,8 @@
 	        for (_j = 0, _len1 = face.length; _j < _len1; _j++) {
 	          vertex = face[_j];
 	          params = {
-	            y: vertex.y + 2,
+	            x: vertex.x + 0.5,
+	            z: vertex.x + 0.5,
 	            delay: i * 0.01,
 	            ease: Power1.easeInOut,
 	            repeat: -1,
