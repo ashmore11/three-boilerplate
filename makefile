@@ -1,6 +1,5 @@
 setup:
 	git config core.fileMode false
-	make cli_setup
 	npm install
 
 watch:
@@ -8,6 +7,3 @@ watch:
 
 release:
 	NODE_ENV=production gulp build
-
-stylus:
-	stylus -w src/stylus/ --out public/css/

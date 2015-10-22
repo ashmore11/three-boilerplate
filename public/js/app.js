@@ -471,7 +471,12 @@
 
 	var _utilsWindow2 = _interopRequireDefault(_utilsWindow);
 
-	var camera = new THREE.PerspectiveCamera(65, _utilsWindow2['default'].width / _utilsWindow2['default'].height, 0.1, 10000);
+	var fov = 65;
+	var aspect = _utilsWindow2['default'].width / _utilsWindow2['default'].height;
+	var near = 0.1;
+	var far = 10000;
+
+	var camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 	camera.position.set(60, 45, 60);
 	camera.lookAt(new THREE.Vector3());
