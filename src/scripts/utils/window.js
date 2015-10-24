@@ -10,7 +10,7 @@ class Window {
 		this.width  = 0;
 		this.height = 0;
 
-		this.window.on('resize', this.resize);
+		this.window.on('resize', this.resize.bind(this));
 
 		this.resize();
 

@@ -1,9 +1,9 @@
 import Win from 'utils/window';
 
-let fov = 65;
+let fov    = 65;
 let aspect = Win.width / Win.height;
-let near = 0.1;
-let far = 10000;
+let near   = 0.1;
+let far    = 10000;
 
 const Camera = new THREE.PerspectiveCamera(
   fov,

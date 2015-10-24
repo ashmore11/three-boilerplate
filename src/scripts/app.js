@@ -11,15 +11,28 @@ class APP {
 
   constructor() {
 
-    if (Settings.debug) {
-      Scene.add(new THREE.GridHelper(50, 10));
-      Scene.add(new THREE.AxisHelper(60));
-    }
+    Settings.debug ? this.debug() : null
+
+    this.bindEvents();
+
+    this.view     = new View();
+    this.camera   = Camera;
+    this.scene    = Scene;
+    this.settings = Settings;
+
+  }
+
+  bindEvents() {
 
     RAF.on('tick', this.update);
     Win.on('resize', this.resize);
 
-    this.view = new View;
+  }
+
+  debug() {
+
+    Scene.add(new THREE.GridHelper(50, 10));
+    Scene.add(new THREE.AxisHelper(60));
 
   }
 
@@ -41,11 +54,9 @@ class APP {
     Renderer.setSize(Win.width, Win.height);
 
     Camera.aspect = Win.width / Win.height;
-    
-    Camera.updateProjectionMatrix();
 
   }
 
 }
 
-let app = new APP();
+window.app = new APP();
