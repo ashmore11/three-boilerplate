@@ -1,28 +1,29 @@
-import Happens from 'happens';
+import { EventEmitter } from 'events';
 
-class Mouse {
+class Mouse extends EventEmitter {
+  constructor() {
+    super();
 
-	constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.isMoving = false;
 
-		Happens(this);
-
-    this.doc = $(document);
-    this.x   = 0;
-    this.y   = 0;
-
-		this.doc.on('mousemove', this.mousemove);
-
+    document.addEventListener('mousemove', this.mousemove.bind(this));
   }
 
-	mousemove( event ) {
+  mousemove(event) {
+    this.x = event.pageX - (window.innerWidth / 2);
+    this.y = event.pageY - (window.innerHeight / 2);
 
-    this.x = event.pageX - ( $(window).width() / 2 );
-    this.y = event.pageY - ( $(window).height() / 2 );
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      this.isMoving = false;
+      this.emit('stop');
+    }, 500);
+    this.isMoving = true;
 
     this.emit('move');
-
   }
-
 }
 
-export default new Mouse();
+export default new Mouse;

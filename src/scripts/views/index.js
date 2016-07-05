@@ -1,47 +1,56 @@
-import RAF      from 'utils/raf';
-import Scene    from 'helpers/scene';
-import BaseView from 'views/baseView';
+import RAF from 'utils/raf';
+import Scene from 'helpers/scene';
 
-class Index extends BaseView {
+export default class Index {
 
   constructor() {
+    this.meshRadius = 300;
 
-    super(); // Expose the parent class to this view
-
-    this.addObjects();
-
+    this.createSpecialMesh();
   }
 
-  /**
-   * Bind all events here
-   */
-  bindEvents() {
-    
-    RAF.on('tick', this.update);
+  createSpecialMesh() {
+    this.nebula = new THREE.Object3D;
 
-  }
-
-  addObjects() {
-
-    let geometry = new THREE.SphereGeometry(10, 16, 16);
-    let material = new THREE.MeshBasicMaterial({
-      color: 0x000000,
+    const materialOptions = {
+      side: THREE.DoubleSide,
       wireframe: true,
-    });
+      color: 0x000000
+    };
+
+    const geometry = new THREE.ParametricGeometry(
+      this.radialWave.bind(this), 20, 20, false
+    );
+    const material = new THREE.MeshBasicMaterial(materialOptions);
+    const mesh = new THREE.Mesh(geometry, material);
+    const matrix = new THREE.Matrix4;
+
+    geometry.applyMatrix(
+      matrix.makeTranslation(-(this.meshRadius / 2), 0, -(this.meshRadius / 2))
+    );
+
+    this.nebula.add(mesh);
     
-    let mesh = new THREE.Mesh(geometry, material);
-
-    Scene.add(mesh);
-
+    Scene.add(this.nebula);
   }
 
-  /**
-   * requestAnimationFrame update
-   */
-  update(time) {
-    
+  radialWave(u, v) {
+    const x = Math.sin(u) * this.meshRadius;
+    const z = Math.sin(v) * this.meshRadius;
+    const y = (Math.sin(u * 4 * Math.PI) + Math.cos(v * 6 * Math.PI)) * this.randomNumber(3, 5);
+
+    const vector = new THREE.Vector3(x, y, z);
+
+    return vector;
   }
 
+  randomNumber(min, max) {
+    return (Math.random() * (max - min + 1)) + min;
+  }
+
+  update() {
+    // for (const plane of this.nebula.children) { 
+    //   plane.geometry.verticesNeedUpdate = true;
+    // }
+  }
 }
-
-export default Index;

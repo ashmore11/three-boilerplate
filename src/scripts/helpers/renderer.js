@@ -1,15 +1,15 @@
-import Settings from 'settings';
-import Win      from 'utils/window';
+import Settings from 'app/settings';
+import Win from 'utils/window';
 
 const Renderer = new THREE.WebGLRenderer({
-  antialias: Settings.antialias
+  antialias: true,
+  alpha: true
 });
 
 Renderer.setSize(Win.width, Win.height);
-Renderer.setClearColor(Settings.renderColor);
+Renderer.setClearColor(0xFFFFFF, 1);
 
-Renderer.shadowMapEnabled = true;
-
-$('main').append(Renderer.domElement);
+const el = document.querySelector('main');
+el.appendChild(Renderer.domElement);
 
 export default Renderer;
