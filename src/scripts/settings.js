@@ -1,9 +1,9 @@
-const Settings = {
-  debug       : true,
-  fog         : true,
-  fogDensity  : 0.005,
-  renderColor : 0xffffff,
-  antialias   : true,
-}
+const settings = {
+  debug: true,
+  fog: false,
+  fogDensity: 0.005,
+  renderColor: 0x000000,
+  antialias: true,
+};
 
-export default Settings;
+export default settings;

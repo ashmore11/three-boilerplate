@@ -1,39 +1,29 @@
-import Happens from 'happens';
+import EventEmitter from 'events';
 
-class RAF {
+class RAF extends EventEmitter {
+	raf = null;
 
 	constructor() {
-
-		Happens(this);
-
-		this.raf = null;
+		super();
 
 		this.start();
-
 	}
 
 	start() {
-
-		this.raf = window.requestAnimationFrame(this.animate.bind(this));
-
+		this.raf = window.requestAnimationFrame(::this.animate);
 	}
 
 	stop() {
+		window.cancelAnimationFrame(::this.raf);
 
-		window.cancelAnimationFrame(this.raf.bind(this));
-		
 		this.raf = null;
-
 	}
 
-	animate(time) {
- 
-		this.raf = window.requestAnimationFrame(this.animate.bind(this));
+	animate(delta) {
+		this.raf = window.requestAnimationFrame(::this.animate);
 
-		this.emit('tick', time);
-
+		this.emit('tick', delta);
 	}
-
 }
 
 export default new RAF();

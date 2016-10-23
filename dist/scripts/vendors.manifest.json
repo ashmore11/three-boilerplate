@@ -1,0 +1,15 @@
+{
+  "name": "vendors",
+  "content": {
+    "../node_modules/dat-gui/index.js": 1,
+    "../node_modules/dat-gui/vendor/dat.gui.js": 2,
+    "../node_modules/dat-gui/vendor/dat.color.js": 3,
+    "../node_modules/gsap/src/uncompressed/TweenMax.js": 4,
+    "../node_modules/webpack/buildin/amd-options.js": 5,
+    "../node_modules/randomcolor/randomColor.js": 6,
+    "../node_modules/stats-js/build/stats.min.js": 7,
+    "../node_modules/three/build/three.js": 8,
+    "../node_modules/three-trackballcontrols/index.js": 9,
+    "../node_modules/three-trackballcontrols/node_modules/three/three.js": 10
+  }
+}

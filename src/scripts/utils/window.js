@@ -1,30 +1,22 @@
-import Happens from 'happens';
+import EventEmitter from 'events';
 
-class Window {
+class Window extends EventEmitter {
+	width = 0;
+	height = 0;
 
 	constructor() {
+		super();
 
-		Happens(this);
-
-		this.window = $(window);
-		this.width  = 0;
-		this.height = 0;
-
-		this.window.on('resize', this.resize.bind(this));
-
+		window.addEventListener('resize', ::this.resize);
 		this.resize();
-
 	}
 
 	resize() {
-
-		this.width  = this.window.width();
-		this.height = this.window.height();
+		this.width = window.innerWidth;
+		this.height = window.innerHeight;
 
 		this.emit('resize');
-
 	}
-
 }
 
 export default new Window();

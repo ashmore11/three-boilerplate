@@ -1,11 +1,9 @@
-import Settings from 'settings';
+import settings from 'app/settings';
 
-const Scene = new THREE.Scene();
+const scene = new THREE.Scene();
 
-if (Settings.fog) {
-
-	Scene.fog = new THREE.FogExp2(Settings.renderColor, Settings.fogDensity);
-
+if (settings.fog) {
+	scene.fog = new THREE.FogExp2(settings.renderColor, settings.fogDensity);
 }
 
-export default Scene
+export default scene;
