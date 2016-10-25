@@ -23,7 +23,7 @@ export default class Main {
 
   debug() {
     scene.add(new THREE.GridHelper(50, 10));
-    scene.add(new THREE.AxisHelper(60));
+    scene.add(new THREE.AxisHelper(100));
   }
 
   update(delta) {
