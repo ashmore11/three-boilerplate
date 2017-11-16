@@ -31,7 +31,7 @@ class APP
     Renderer.setViewport 0, 0, win.width, win.height
     Renderer.setScissor  0, 0, win.width, win.height
 
-    Renderer.enableScissorTest true
+    Renderer.setScissorTest true
 
     Renderer.render Scene, Camera
 

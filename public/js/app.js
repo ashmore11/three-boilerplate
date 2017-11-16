@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var APP, Camera, Controls, RAF, Renderer, Scene, Settings, View, win,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -83,7 +83,7 @@
 	  APP.prototype.update = function() {
 	    Renderer.setViewport(0, 0, win.width, win.height);
 	    Renderer.setScissor(0, 0, win.width, win.height);
-	    Renderer.enableScissorTest(true);
+	    Renderer.setScissorTest(true);
 	    Renderer.render(Scene, Camera);
 	    Camera.updateProjectionMatrix();
 	    return Controls.update();
@@ -102,9 +102,9 @@
 	module.exports = new APP;
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = {
 	  debug: false,
@@ -112,9 +112,9 @@
 	};
 
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var Window, happens,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -148,9 +148,9 @@
 	module.exports = new Window;
 
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/**
 	 * Module constructor
@@ -240,9 +240,9 @@
 	    throw new Error(fn + ' is not a Function');
 	}
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var RAF, happens,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -308,9 +308,9 @@
 	module.exports = new RAF;
 
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var renderer, win;
 
@@ -324,16 +324,16 @@
 
 	renderer.setClearColor("#ffffff");
 
-	renderer.shadowMapEnabled = true;
+	renderer.shadowMap.enabled = true;
 
 	$('main').append(renderer.domElement);
 
 	module.exports = renderer;
 
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var Camera, controls;
 
@@ -358,9 +358,9 @@
 	module.exports = controls;
 
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var camera, win;
 
@@ -375,9 +375,9 @@
 	module.exports = camera;
 
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var Settings;
 
@@ -390,9 +390,9 @@
 	}
 
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var Index, RAF, Scene, Settings, randomColor,
 	  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -465,11 +465,11 @@
 	})();
 
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// randomColor by David Merfield under the MIT license
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// randomColor by David Merfield under the CC0 license
 	// https://github.com/davidmerfield/randomColor/
 
 	;(function(root, factory) {
@@ -481,19 +481,19 @@
 	  // Support CommonJS
 	  } else if (typeof exports === 'object') {
 	    var randomColor = factory();
-	    
+
 	    // Support NodeJS & Component, which allow module.exports to be a function
 	    if (typeof module === 'object' && module && module.exports) {
 	      exports = module.exports = randomColor;
 	    }
-	    
+
 	    // Support CommonJS 1.1.1 spec
 	    exports.randomColor = randomColor;
-	  
+
 	  // Support vanilla script loading
 	  } else {
 	    root.randomColor = factory();
-	  };
+	  }
 
 	}(this, function() {
 
@@ -506,14 +506,32 @@
 	  // Populate the color dictionary
 	  loadColorBounds();
 
-	  var randomColor = function(options) {
+	  var randomColor = function (options) {
+
 	    options = options || {};
-	    if (options.seed && !seed) seed = options.seed;
+
+	    // Check if there is a seed and ensure it's an
+	    // integer. Otherwise, reset the seed value.
+	    if (options.seed && options.seed === parseInt(options.seed, 10)) {
+	      seed = options.seed;
+
+	    // A string was passed as a seed
+	    } else if (typeof options.seed === 'string') {
+	      seed = stringToInteger(options.seed);
+
+	    // Something was passed as a seed but it wasn't an integer or string
+	    } else if (options.seed !== undefined && options.seed !== null) {
+	      throw new TypeError('The seed value must be an integer or string');
+
+	    // No seed, reset the value outside.
+	    } else {
+	      seed = null;
+	    }
 
 	    var H,S,B;
 
 	    // Check if we need to generate multiple colors
-	    if (options.count != null) {
+	    if (options.count !== null && options.count !== undefined) {
 
 	      var totalColors = options.count,
 	          colors = [];
@@ -521,14 +539,17 @@
 	      options.count = null;
 
 	      while (totalColors > colors.length) {
+
+	        // Since we're generating multiple colors,
+	        // incremement the seed. Otherwise we'd just
+	        // generate the same color each time...
+	        if (seed && options.seed) options.seed += 1;
+
 	        colors.push(randomColor(options));
 	      }
 
 	      options.count = totalColors;
 
-	      //Keep the seed constant between runs. 
-	      if (options.seed) seed = options.seed;
-	      
 	      return colors;
 	    }
 
@@ -552,7 +573,7 @@
 
 	    // Instead of storing red as two seperate ranges,
 	    // we group them, using negative numbers
-	    if (hue < 0) {hue = 360 + hue}
+	    if (hue < 0) {hue = 360 + hue;}
 
 	    return hue;
 
@@ -594,8 +615,7 @@
 
 	  function pickBrightness (H, S, options) {
 
-	    var brightness,
-	        bMin = getMinimumBrightness(H, S),
+	    var bMin = getMinimumBrightness(H, S),
 	        bMax = 100;
 
 	    switch (options.luminosity) {
@@ -615,7 +635,6 @@
 	    }
 
 	    return randomWithin([bMin, bMax]);
-
 	  }
 
 	  function setFormat (hsv, options) {
@@ -632,12 +651,20 @@
 	        var hsl = HSVtoHSL(hsv);
 	        return 'hsl('+hsl[0]+', '+hsl[1]+'%, '+hsl[2]+'%)';
 
+	      case 'hsla':
+	        var hslColor = HSVtoHSL(hsv);
+	        return 'hsla('+hslColor[0]+', '+hslColor[1]+'%, '+hslColor[2]+'%, ' + Math.random() + ')';
+
 	      case 'rgbArray':
 	        return HSVtoRGB(hsv);
 
 	      case 'rgb':
 	        var rgb = HSVtoRGB(hsv);
 	        return 'rgb(' + rgb.join(', ') + ')';
+
+	      case 'rgba':
+	        var rgbColor = HSVtoRGB(hsv);
+	        return 'rgba(' + rgbColor.join(', ') + ', ' + Math.random() + ')';
 
 	      default:
 	        return HSVtoHex(hsv);
@@ -686,7 +713,7 @@
 
 	      if (colorDictionary[colorInput]) {
 	        var color = colorDictionary[colorInput];
-	        if (color.hueRange) {return color.hueRange}
+	        if (color.hueRange) {return color.hueRange;}
 	      }
 	    }
 
@@ -716,7 +743,7 @@
 	  }
 
 	  function randomWithin (range) {
-	    if (seed == null) {
+	    if (seed === null) {
 	      return Math.floor(range[0] + Math.random()*(range[1] + 1 - range[0]));
 	    } else {
 	      //Seeded random algorithm from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
@@ -734,10 +761,10 @@
 
 	    function componentToHex(c) {
 	        var hex = c.toString(16);
-	        return hex.length == 1 ? "0" + hex : hex;
+	        return hex.length == 1 ? '0' + hex : hex;
 	    }
 
-	    var hex = "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
+	    var hex = '#' + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
 
 	    return hex;
 
@@ -817,8 +844,8 @@
 	    // this doesn't work for the values of 0 and 360
 	    // here's the hacky fix
 	    var h = hsv[0];
-	    if (h === 0) {h = 1}
-	    if (h === 360) {h = 359}
+	    if (h === 0) {h = 1;}
+	    if (h === 360) {h = 359;}
 
 	    // Rebase the h,s,v values
 	    h = h/360;
@@ -835,13 +862,14 @@
 	      b = 256;
 
 	    switch(h_i) {
-	      case 0: r = v, g = t, b = p;  break;
-	      case 1: r = q, g = v, b = p;  break;
-	      case 2: r = p, g = v, b = t;  break;
-	      case 3: r = p, g = q, b = v;  break;
-	      case 4: r = t, g = p, b = v;  break;
-	      case 5: r = v, g = p, b = q;  break;
+	      case 0: r = v; g = t; b = p;  break;
+	      case 1: r = q; g = v; b = p;  break;
+	      case 2: r = p; g = v; b = t;  break;
+	      case 3: r = p; g = q; b = v;  break;
+	      case 4: r = t; g = p; b = v;  break;
+	      case 5: r = v; g = p; b = q;  break;
 	    }
+
 	    var result = [Math.floor(r*255), Math.floor(g*255), Math.floor(b*255)];
 	    return result;
 	  }
@@ -859,9 +887,18 @@
 	    ];
 	  }
 
+	  function stringToInteger (string) {
+	    var total = 0
+	    for (var i = 0; i !== string.length; i++) {
+	      if (total >= Number.MAX_SAFE_INTEGER) break;
+	      total += string.charCodeAt(i)
+	    }
+	    return total
+	  }
+
 	  return randomColor;
 	}));
 
 
-/***/ }
+/***/ })
 /******/ ]);

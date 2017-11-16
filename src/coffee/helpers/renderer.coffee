@@ -5,7 +5,7 @@ renderer = new THREE.WebGLRenderer antialias: true
 renderer.setSize win.width, win.height
 renderer.setClearColor "#ffffff"
 
-renderer.shadowMapEnabled = on
+renderer.shadowMap.enabled = on
 
 $('main').append renderer.domElement
 
