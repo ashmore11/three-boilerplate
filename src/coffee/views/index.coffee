@@ -78,7 +78,7 @@ module.exports = class Index
       z    : 150
       ease : Power4.easeInOut
 
-    TweenMax.to Camera.position, 2, params
+    TweenMax.to Camera.position, 10, params
 
     @planes.rotation.y = -( Math.PI / 4 )
 
@@ -89,7 +89,7 @@ module.exports = class Index
 
         @introTweenComplete = true
 
-    TweenMax.to @planes.rotation, 2, params
+    TweenMax.to @planes.rotation, 10, params
 
   spinAxis: =>
 
@@ -183,12 +183,6 @@ module.exports = class Index
   gui: ->
 
     gui = new dat.GUI
-
-    material = gui.add @, "materialType", ['MeshNormalMaterial', 'MeshBasicMaterial']
-    material.onChange ( value ) => @updateMaterial value
-
-    edges = gui.add( @, 'transparentEdges' ).listen()
-    edges.onChange ( value ) => @transparentEdges = value
 
     gui.add @, 'spinAxis'
     gui.add @, 'sideView'
